@@ -1,7 +1,11 @@
+## ABANS DE COMENÇAR:
+- npm install @supabase/supabase-js
+- npm install @react-navigation/native
+- npm install react-native-screens react-native-safe-area-context
+- npm install @react-navigation/stack
+- npm install react-native-paper
+
+## PER PODER FER DEBUG:
 1. npm install (si no funciona fem "npm install --force")
 2. npx expo start
-
-- SI NO DEIXA OBRIR EN WEB, instalar web pack expo config (la propia terminal et diu quin comando)
-- instalar dependencies supabase
-- instalar dependencies react navigation
-- instalar dependencies material design
+3. SI NO DEIXA OBRIR EN WEB, instalar web pack expo config (la propia terminal et diu quin comando)
