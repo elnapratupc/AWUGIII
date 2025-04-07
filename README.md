@@ -6,7 +6,7 @@ Morfilm és una aplicació mòbil desenvolupada amb React Native dissenyada segu
 - 🏠 Pantalla inicial amb seccions (pel·lícules i tràilers populars, trending, etc)
 - 🎬 Detall de cada pel·lícula amb accions (afegir a llistes) i informació general
 - 📂 Gestió de llistes personalitzades de pel·lícules
-- 👥 Perfil d’usuari (visualització i administració de les llistes)
+- 👤 Perfil d’usuari (visualització i administració de les llistes)
 - ⚙️ Configuració (light/dark mode, log out)
 
 ## 🗄️ Estructura
