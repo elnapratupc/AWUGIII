@@ -1,4 +1,4 @@
-1. npm install (si no funciona fem --force)
+1. npm install (si no funciona fem "npm install --force")
 2. npx expo start
 
 - SI NO DEIXA OBRIR EN WEB, instalar web pack expo config (la propia terminal et diu quin comando)
