@@ -11,9 +11,8 @@ Morfilm és una aplicació mòbil desenvolupada amb React Native dissenyada segu
 
 ## 🗄️ Estructura
 morfilm/
-│
-├── assets/                        # Imatges, icones,etc.
-├── components/                    # Components reutilitzables
-├── screens/                       # Totes les pantalles
-├── App.js                         # Arrel del projecte
-└── morfilm-material-theme.json    # Paleta de colors i tipografies (Material Theme propi)
+- assets/                        # Imatges, icones, etc.
+- components/                    # Components reutilitzables
+- screens/                       # Totes les pantalles
+- App.js                         # Arrel del projecte
+- morfilm-material-theme.json    # Paleta de colors i tipografies (Material Theme propi)
