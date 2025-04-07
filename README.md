@@ -1,7 +1,7 @@
-- npm install (si no funciona fem --force)
-- npx expo start
+1. npm install (si no funciona fem --force)
+2. npx expo start
 
-- instalar web pack expo config 19
+- SI NO DEIXA OBRIR EN WEB, instalar web pack expo config (la propia terminal et diu quin comando)
 - instalar dependencies supabase
 - instalar dependencies react navigation
 - instalar dependencies material design
