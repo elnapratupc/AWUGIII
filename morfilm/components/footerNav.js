@@ -1,1 +1,1 @@
-//bottom app bar (Material Design)
+//navigation bar (Material Design)
