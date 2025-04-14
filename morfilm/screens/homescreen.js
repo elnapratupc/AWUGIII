@@ -1,35 +1,52 @@
 import React from 'react';
-import { ScrollView, View, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';  // Importamos los iconos de Material Design
+import { View, Text, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
 
 const HomeScreen = () => {
   return (
-    <ScrollView contentContainerStyle={styles.container}>  {/* Aplica el estilo aquí */}
-      <View style={styles.iconList}>
-        {/* Aquí vamos a listar varios iconos con contorno */}
-        <Icon name="home-outline" size={50} color="black" /> {/* Icono vacío de casa */}
-        <Icon name="settings-outline" size={50} color="black" /> {/* Icono vacío de configuración */}
-        <Icon name="account-circle" size={50}  /> {/* Icono vacío de perfil */}
-        <Icon name="search-outline" size={50} color="black" /> {/* Icono vacío de búsqueda */}
-        <Icon name="favorite-outline" size={50} color="black" /> {/* Icono vacío de favorito */}
-        <Icon name="local-fire-department" size={50} color="black" />  {/* Icono vacío de fuego */}
+    <SafeAreaView style={styles.outerContainer}>
+      <View style={styles.innerContainer}>
+        <View style={styles.topBar}>
+          <Icon name="account-circle" size={64} color="#171d1a" />
+          <Icon name="settings" size={32} color="#171d1a" />
+        </View>
+
+        <Text style={styles.welcome}>Welcome.</Text>
       </View>
-    </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  outerContainer: {
     flex: 1,
-    justifyContent: 'center',  // Colocamos justifyContent aquí
-    padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#eaeaea', // fons de fons (per simular el navegador)
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  iconList: {
+  innerContainer: {
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
+    backgroundColor: '#f5fbf5',
+    paddingHorizontal: 24,
+    paddingTop: 48,
+  },
+  topBar: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',  // Ajuste de iconos
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
+  welcome: {
+    marginTop: 24,
+    fontSize: 24,               // ✅ fontSize correcte
+    fontFamily: 'Lexend Deca',  // ✅ font del tema
+    fontWeight: '400',          // Regular
+    color: '#171d1a',
+  }
+  
 });
 
 export default HomeScreen;
