@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, SafeAreaView, Dimensions, Image, FlatList, Scro
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { textStyles } from '../theme/typography';
 import { API_URL } from '../api/tmdb';
+import { Linking, TouchableOpacity } from 'react-native';
+
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -88,9 +90,19 @@ const HomeScreen = () => {
             <Text style={textStyles.labelLarge} numberOfLines={1}>
               {item.movieTitle}
             </Text>
-            <Text style={[textStyles.bodySmall, { color: '#404943' }]}>Tonight</Text>
+            <Text style={[textStyles.bodySmall, { color: '#404943' }]}>
+  {item.published_at
+    ? new Date(item.published_at).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    : '—'}
+</Text>
           </View>
-          <Icon name="play-circle-outline" size={24} color="#171d1a" />
+          <TouchableOpacity onPress={() => Linking.openURL(`https://www.youtube.com/watch?v=${item.key}`)}>
+  <Icon name="play-circle-outline" size={24} color="#171d1a" />
+</TouchableOpacity>
         </View>
       </View>
     );
