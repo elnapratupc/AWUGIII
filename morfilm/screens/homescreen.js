@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { textStyles } from '../theme/typography';
 import { API_URL } from '../api/tmdb';
+import { Image } from 'react-native';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -42,12 +43,21 @@ const HomeScreen = () => {
         </View>
 
         <View style={styles.movieList}>
-          {movies.map((movie) => (
-            <Text key={movie.id} style={textStyles.bodyMedium}>
-              • {movie.title}
-            </Text>
-          ))}
-        </View>
+  {movies.map((movie) => (
+    <View key={movie.id} style={styles.movieCard}>
+      <Image
+        source={{ uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}` }}
+        style={styles.poster}
+        resizeMode="cover"
+      />
+      <View style={styles.movieInfo}>
+        <Text style={textStyles.titleMedium}>{movie.title}</Text>
+        <Text style={textStyles.bodySmall}>{movie.release_date}</Text>
+      </View>
+    </View>
+  ))}
+</View>
+
 
       </View>
     </SafeAreaView>
