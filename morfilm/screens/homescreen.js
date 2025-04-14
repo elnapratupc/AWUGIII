@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, SafeAreaView, Dimensions, Image, FlatList } fro
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { textStyles } from '../theme/typography';
 import { API_URL } from '../api/tmdb';
+import { ScrollView } from 'react-native';
+
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -45,12 +47,14 @@ const HomeScreen = () => {
         })}
       </Text>
     </View>
+    
+    
   );
 
   return (
     <SafeAreaView style={styles.outerContainer}>
-      <View style={styles.innerContainer}>
-        {/* Top Bar */}
+  <ScrollView contentContainerStyle={styles.innerContainer}>
+  {/* Top Bar */}
         <View style={styles.topBar}>
           <Icon name="account-circle-outline" size={20} color="#171d1a" />
           <Icon name="cog-outline" size={20} color="#171d1a" />
@@ -76,7 +80,14 @@ const HomeScreen = () => {
           contentContainerStyle={styles.carousel}
           renderItem={renderMovieCard}
         />
-      </View>
+
+      <View style={styles.trailersRow}>
+  <Icon name="movie" size={22} color="#171d1a" style={styles.trailersIcon} />
+  <Text style={textStyles.titleLarge}>Latest Trailers</Text>
+</View>
+</ScrollView>
+
+
     </SafeAreaView>
   );
 };
@@ -87,7 +98,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#eaeaea',
   },
   innerContainer: {
-    flex: 1,
     backgroundColor: '#f5fbf5',
     paddingHorizontal: 24,
     paddingTop: 25,
@@ -128,7 +138,17 @@ const styles = StyleSheet.create({
   carousel: {
     paddingRight: 8,
     marginTop: 16,
+    maxHeight: 300,
   },
+  trailersRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  trailersIcon: {
+    marginRight: 10,
+  },
+  
 });
 
 export default HomeScreen;
