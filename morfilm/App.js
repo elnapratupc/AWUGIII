@@ -12,6 +12,7 @@ const App = () => {
       'LexendDeca-Medium': require('./assets/fonts/static/LexendDeca-Medium.ttf'),
       'LexendDeca-SemiBold': require('./assets/fonts/static/LexendDeca-SemiBold.ttf'),
       'LexendDeca-Bold': require('./assets/fonts/static/LexendDeca-Bold.ttf'),
+
     }).then(() => setFontsLoaded(true));
   }, []);
 
