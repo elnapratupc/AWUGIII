@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react'; 
-import { View, Text, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, Dimensions, Image, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { textStyles } from '../theme/typography';
 import { API_URL } from '../api/tmdb';
-import { Image } from 'react-native';
-import { FlatList } from 'react-native';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -25,38 +23,21 @@ const HomeScreen = () => {
     fetchMovies();
   }, []);
 
-  return (
-    <SafeAreaView style={styles.outerContainer}>
-      <View style={styles.innerContainer}>
-
-        <View style={styles.topBar}>
-          <Icon name="account-circle-outline" size={20} color="#171d1a" />
-          <Icon name="cog-outline" size={20} color="#171d1a" />
-        </View>
-
-        <Text style={[textStyles.headlineSmall, styles.welcome]}>
-          Welcome.
-        </Text>
-
-        <View style={styles.trendingRow}>
-          <Icon name="fire" size={22} color="#171d1a" style={styles.trendingIcon} />
-          <Text style={textStyles.titleLarge}>Trending</Text>
-        </View>
-
-        <FlatList
-  data={movies}
-  keyExtractor={(item) => item.id.toString()}
-  horizontal
-  showsHorizontalScrollIndicator={false}
-  contentContainerStyle={styles.carousel}
-  renderItem={({ item }) => (
+  const renderMovieCard = ({ item }) => (
     <View style={styles.card}>
       <Image
         source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
         style={styles.poster}
       />
-      <Text style={textStyles.titleSmall}>{item.title}</Text>
-      <Text style={textStyles.bodySmall}>
+      <Text
+        style={[textStyles.labelLarge]}
+        numberOfLines={1}
+        ellipsizeMode="tail"
+      >
+        {item.title}
+      </Text>
+      <Text 
+        style={[textStyles.bodySmall, { color: '#404943' }]}>
         {new Date(item.release_date).toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
@@ -64,10 +45,37 @@ const HomeScreen = () => {
         })}
       </Text>
     </View>
-  )}
-/>
+  );
 
+  return (
+    <SafeAreaView style={styles.outerContainer}>
+      <View style={styles.innerContainer}>
+        {/* Top Bar */}
+        <View style={styles.topBar}>
+          <Icon name="account-circle-outline" size={20} color="#171d1a" />
+          <Icon name="cog-outline" size={20} color="#171d1a" />
+        </View>
 
+        {/* Welcome Text */}
+        <Text style={[textStyles.headlineSmall, styles.welcome]}>
+          Welcome.
+        </Text>
+
+        {/* Trending Section */}
+        <View style={styles.trendingRow}>
+          <Icon name="fire" size={22} color="#171d1a" style={styles.trendingIcon} />
+          <Text style={textStyles.titleLarge}>Trending</Text>
+        </View>
+
+        {/* Movies Carousel */}
+        <FlatList
+          data={movies}
+          keyExtractor={(item) => item.id.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.carousel}
+          renderItem={renderMovieCard}
+        />
       </View>
     </SafeAreaView>
   );
@@ -77,15 +85,12 @@ const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
     backgroundColor: '#eaeaea',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   innerContainer: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
+    flex: 1,
     backgroundColor: '#f5fbf5',
     paddingHorizontal: 24,
-    paddingTop: 48,
+    paddingTop: 25,
   },
   topBar: {
     flexDirection: 'row',
@@ -104,42 +109,26 @@ const styles = StyleSheet.create({
   trendingIcon: {
     marginRight: 10,
   },
-  movieList: {
-    marginTop: 16,
-    marginLeft: 16,
-    gap: 6, // només si tens React Native 0.71+
-  },
-  movieList: {
-    marginTop: 16,
-    marginLeft: 16,
-    gap: 16,
-  },
-  movieCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
   card: {
-    width: 160,
-    backgroundColor: '#e4eae4', // surface container high
+    width: 120,
+    backgroundColor: '#e4eae4',
     borderRadius: 16,
     padding: 8,
     marginRight: 12,
     alignItems: 'flex-start',
+    flexShrink: 1,
+    alignSelf: 'flex-start',
   },
   poster: {
     width: '100%',
-    height: 220,
+    aspectRatio: 2 / 3,
     borderRadius: 12,
     marginBottom: 8,
   },
   carousel: {
-    paddingLeft: 16,
     paddingRight: 8,
     marginTop: 16,
   },
-  
-  
 });
 
 export default HomeScreen;
