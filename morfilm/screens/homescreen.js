@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { textStyles } from '../theme/typography';
+
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -10,11 +12,14 @@ const HomeScreen = () => {
     <SafeAreaView style={styles.outerContainer}>
       <View style={styles.innerContainer}>
         <View style={styles.topBar}>
-          <Icon name="account-circle" size={64} color="#171d1a" />
-          <Icon name="settings" size={32} color="#171d1a" />
-        </View>
+        <Icon name="account-circle-outline" size={30} color="#171d1a" />
+        <Icon name="cog-outline" size={30} color="#171d1a" />
+          </View>
 
-        <Text style={styles.welcome}>Welcome.</Text>
+        <Text style={textStyles.headlineSmall}>
+        Welcome.
+        </Text>
+
       </View>
     </SafeAreaView>
   );
@@ -39,13 +44,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  welcome: {
-    marginTop: 24,
-    fontSize: 24,               // ✅ fontSize correcte
-    fontFamily: 'Lexend Deca',  // ✅ font del tema
-    fontWeight: '400',          // Regular
-    color: '#171d1a',
-  }
+ 
   
 });
 
