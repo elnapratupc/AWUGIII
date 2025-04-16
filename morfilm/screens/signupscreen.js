@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { View, TextInput, Button, Text, Alert, StyleSheet, Dimensions, Image } from 'react-native';
 import { supabase } from './supabaseClient';
 import { useNavigation } from '@react-navigation/native';
@@ -16,20 +16,18 @@ export default function SignupScreen() {
       Alert.alert('Error', error.message);
     } else {
       Alert.alert('Compte creat!', 'Revisa el teu correu per verificar-lo.');
+      // Navegamos a la pantalla de login usando la ruta "Login"
       navigation.navigate('Login');
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Logo at the top */}
       <Image
         source={require('../assets/icons/splash-icon.png')}
         style={styles.logo}
       />
-
       <Text style={styles.title}>Crea un compte</Text>
-      
       <TextInput
         placeholder="Email"
         style={styles.input}
@@ -65,7 +63,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
-  // Logo style
   logo: {
     width: 100,
     height: 100,

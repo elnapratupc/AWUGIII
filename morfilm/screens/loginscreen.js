@@ -24,20 +24,18 @@ export default function LoginScreen() {
     if (error) {
       Alert.alert('Error', error.message);
     } else {
+      // Usamos la ruta "Home" que definimos en el Stack Navigator
       navigation.replace('Home');
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Logo at the top */}
       <Image
-        source={require('../assets/icons/splash-icon.png')} 
+        source={require('../assets/icons/splash-icon.png')}
         style={styles.logo}
       />
-
       <Text style={styles.title}>Inicia Sessió</Text>
-
       <TextInput
         placeholder="Email"
         style={styles.input}
@@ -51,13 +49,11 @@ export default function LoginScreen() {
         onChangeText={setPassword}
         value={password}
       />
-
       <Button
         title="Iniciar Sessió"
         onPress={handleLogin}
         color="#206A4E"
       />
-
       <Text style={styles.link} onPress={() => navigation.navigate('Signup')}>
         No tens compte? Registra’t
       </Text>
@@ -72,13 +68,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
-  // Logo style
   logo: {
     width: 100,
     height: 100,
     resizeMode: 'contain',
-    alignSelf: 'center', 
-    marginBottom: 24, 
+    alignSelf: 'center',
+    marginBottom: 24,
   },
   title: {
     fontSize: 24,

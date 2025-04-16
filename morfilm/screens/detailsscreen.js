@@ -12,7 +12,6 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 
-// EJEMPLO de ancho/alto de la pantalla
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function DetailsScreen() {
@@ -22,7 +21,6 @@ export default function DetailsScreen() {
 
   const [relatedMovies, setRelatedMovies] = useState([]);
 
-  // Si el objeto movie no existe, mostramos un fallback
   if (!movie) {
     return (
       <View style={styles.container}>
@@ -34,7 +32,6 @@ export default function DetailsScreen() {
     );
   }
 
-  // Nota: Aquí podrías fetch a la API de TMDB para cargar "related" o "similar" movies
   useEffect(() => {
     const fetchRelatedMovies = async () => {
       try {
@@ -51,16 +48,12 @@ export default function DetailsScreen() {
     fetchRelatedMovies();
   }, [movie.id]);
 
-  // Transformamos el user score a %
   const userScore = movie.vote_average ? Math.round(movie.vote_average * 10) : 0;
-  // Ejemplo de tagline fallback
   const tagline = movie.tagline || 'Love is a hustle.';
-  // Ejemplo de fecha (año)
   const movieYear = movie.release_date
     ? new Date(movie.release_date).getFullYear()
     : '—';
 
-  // Renderiza cada película relacionada
   const renderRelatedMovie = ({ item }) => (
     <View style={styles.relatedCard}>
       <ImageBackground
@@ -78,20 +71,15 @@ export default function DetailsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Cabecera scrollable */}
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-        {/* Fondo con la imagen de la película en la cabecera */}
         <ImageBackground
           source={{ uri: `https://image.tmdb.org/t/p/w780${movie.poster_path}` }}
           style={styles.heroImage}
           resizeMode="cover"
         >
-          {/* Botón de cerrar */}
           <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
             <Icon name="chevron-down" size={24} color="#fff" />
           </TouchableOpacity>
-
-          {/* Contenedor de texto sobre la imagen */}
           <View style={styles.heroContent}>
             <Text style={styles.movieTitle}>
               {movie.title} {movieYear}
@@ -100,40 +88,28 @@ export default function DetailsScreen() {
           </View>
         </ImageBackground>
 
-        {/* Contenido principal */}
         <View style={styles.contentContainer}>
-          {/* Overview */}
           <Text style={styles.overview}>{movie.overview}</Text>
-
-          {/* Stats y botones */}
           <View style={styles.statsRow}>
-            {/* User Score */}
             <View style={styles.userScoreContainer}>
               <Text style={styles.scoreValue}>{userScore}%</Text>
               <Text style={styles.scoreLabel}>User Score</Text>
             </View>
-
-            {/* Dónde ver */}
             <View style={styles.watchContainer}>
               <Text style={styles.whereLabel}>Where to watch</Text>
               <Icon name="apple" size={22} color="#000" style={{ marginHorizontal: 6 }} />
               <Text style={styles.tvText}>TV</Text>
             </View>
-
-            {/* Ejemplo de "Add to favorites" */}
             <TouchableOpacity style={styles.actionButton}>
               <Icon name="heart-outline" size={20} color="#206A4E" />
               <Text style={styles.actionText}>Favorites</Text>
             </TouchableOpacity>
-
-            {/* Ejemplo de "Add to list" */}
             <TouchableOpacity style={styles.actionButton}>
               <Icon name="playlist-plus" size={20} color="#206A4E" />
               <Text style={styles.actionText}>To list...</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Related Movies */}
           <Text style={styles.sectionTitle}>Related movies</Text>
           {relatedMovies.length > 0 ? (
             <FlatList
@@ -152,7 +128,6 @@ export default function DetailsScreen() {
   );
 }
 
-// Estilos para acercarnos al diseño de tu screenshot
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -165,7 +140,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    top: 40, // ajusta según tu notch o status bar
+    top: 40,
     right: 20,
     zIndex: 10,
     padding: 6,

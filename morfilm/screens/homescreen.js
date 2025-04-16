@@ -17,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import { textStyles } from '../theme/typography';
 import { API_URL } from '../api/tmdb';
 import { supabase } from '../screens/supabaseClient';
+import FooterNav from '../components/footerNav';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -25,7 +26,6 @@ export default function HomeScreen() {
   const [movies, setMovies] = useState([]);
   const [trailers, setTrailers] = useState([]);
 
-  // Fetch popular movies
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -39,7 +39,6 @@ export default function HomeScreen() {
     fetchMovies();
   }, []);
 
-  // Fetch trailers from first 5 popular movies
   useEffect(() => {
     const fetchTrailersFromPopular = async () => {
       try {
@@ -70,22 +69,20 @@ export default function HomeScreen() {
     fetchTrailersFromPopular();
   }, []);
 
-  // Function to handle logout
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
       Alert.alert('Error', error.message);
     } else {
-      navigation.replace('Login');
+      navigation.replace('LoginScreen');
     }
   };
 
-  // Movie card renderer
   const renderMovieCard = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => {
-        // Navigate to Details screen with this movie's data
+        // Navegamos a la pantalla de detalles usando la ruta "Details"
         navigation.navigate('Details', { movie: item });
       }}
     >
@@ -106,20 +103,21 @@ export default function HomeScreen() {
     </TouchableOpacity>
   );
 
-  // Trailer card renderer
   const renderTrailerCard = ({ item }) => {
     const youtubeThumbnail = `https://img.youtube.com/vi/${item.key}/hqdefault.jpg`;
-
     return (
       <View style={styles.trailerCard}>
-        <Image source={{ uri: youtubeThumbnail }} style={styles.trailerThumbnail} />
+        <Image
+          source={{ uri: youtubeThumbnail }}
+          style={styles.trailerThumbnail}
+        />
         <View style={styles.trailerRow}>
           <View style={{ flex: 1 }}>
             <Text style={textStyles.labelLarge} numberOfLines={1}>
               {item.movieTitle}
             </Text>
             <Text style={[textStyles.bodySmall, { color: '#404943' }]}>
-            {item.published_at
+              {item.published_at
                 ? new Date(item.published_at).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
@@ -128,7 +126,11 @@ export default function HomeScreen() {
                 : '—'}
             </Text>
           </View>
-          <TouchableOpacity onPress={() => Linking.openURL(`https://www.youtube.com/watch?v=${item.key}`)}>
+          <TouchableOpacity
+            onPress={() =>
+              Linking.openURL(`https://www.youtube.com/watch?v=${item.key}`)
+            }
+          >
             <Icon name="play-circle-outline" size={24} color="#171d1a" />
           </TouchableOpacity>
         </View>
@@ -147,10 +149,17 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        <Text style={[textStyles.headlineSmall, styles.welcome]}>Welcome.</Text>
+        <Text style={[textStyles.headlineSmall, styles.welcome]}>
+          Welcome.
+        </Text>
 
         <View style={styles.trendingRow}>
-          <Icon name="fire" size={22} color="#171d1a" style={styles.trendingIcon} />
+          <Icon
+            name="fire"
+            size={22}
+            color="#171d1a"
+            style={styles.trendingIcon}
+          />
           <Text style={textStyles.titleLarge}>Trending</Text>
         </View>
 
@@ -164,22 +173,28 @@ export default function HomeScreen() {
         />
 
         <View style={styles.trailersRow}>
-          <Icon name="movie" size={22} color="#171d1a" style={styles.trailersIcon} />
+          <Icon
+            name="movie"
+            size={22}
+            color="#171d1a"
+            style={styles.trailersIcon}
+          />
           <Text style={textStyles.titleLarge}>Latest Trailers</Text>
         </View>
 
         <FlatList
           data={trailers}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.carousel}
           renderItem={renderTrailerCard}
         />
       </ScrollView>
+      <FooterNav />
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   outerContainer: {
@@ -254,4 +269,3 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 });
-
