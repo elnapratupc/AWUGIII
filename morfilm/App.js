@@ -23,17 +23,16 @@ export default function App() {
     async function loadResources() {
       await Font.loadAsync({
         'LexendDeca-Regular': require('./assets/fonts/static/LexendDeca-Regular.ttf'),
-        'LexendDeca-Medium': require('./assets/fonts/static/LexendDeca-Medium.ttf'),
-        'LexendDeca-SemiBold': require('./assets/fonts/static/LexendDeca-SemiBold.ttf'),
-        'LexendDeca-Bold': require('./assets/fonts/static/LexendDeca-Bold.ttf'),
+        'LexendDeca-Medium':  require('./assets/fonts/static/LexendDeca-Medium.ttf'),
+        'LexendDeca-SemiBold':require('./assets/fonts/static/LexendDeca-SemiBold.ttf'),
+        'LexendDeca-Bold':     require('./assets/fonts/static/LexendDeca-Bold.ttf'),
       });
-      
+
       const { data: { session } } = await supabase.auth.getSession();
       setLoggedIn(!!session?.user);
 
       setFontsLoaded(true);
     }
-
     loadResources();
   }, []);
 
@@ -42,40 +41,17 @@ export default function App() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {/* Pantallas de autenticación */}
-          {!loggedIn ? (
-            <>
-              <Stack.Screen 
-                name="Login" 
-                component={LoginScreen} 
-              />
-              <Stack.Screen 
-                name="Signup" 
-                component={SignupScreen} 
-              />
-            </>
-          ) : (
-            <>
-              {/* Pantallas de la app */}
-              <Stack.Screen 
-                name="Home" 
-                component={HomeScreen} 
-              />
-              <Stack.Screen 
-                name="Search" 
-                component={SearchScreen} 
-              />
-              <Stack.Screen 
-                name="Reels" 
-                component={ReelsScreen} 
-              />
-              <Stack.Screen 
-                name="Details" 
-                component={DetailsScreen} 
-              />
-            </>
-          )}
+        <Stack.Navigator
+          initialRouteName={loggedIn ? 'Home' : 'Login'}
+          screenOptions={{ headerShown: false }}
+        >
+          {/* Siempre registramos todas las rutas para que navigation.replace las encuentre */}
+          <Stack.Screen name="Login"   component={LoginScreen}  />
+          <Stack.Screen name="Signup"  component={SignupScreen} />
+          <Stack.Screen name="Home"    component={HomeScreen}    />
+          <Stack.Screen name="Search"  component={SearchScreen}  />
+          <Stack.Screen name="Reels"   component={ReelsScreen}   />
+          <Stack.Screen name="Details" component={DetailsScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaView>

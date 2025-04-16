@@ -1,3 +1,4 @@
+// screens/loginscreen.js
 import React, { useState } from 'react';
 import {
   View,
@@ -6,8 +7,8 @@ import {
   Text,
   Alert,
   StyleSheet,
-  Dimensions,
   Image,
+  Dimensions,
 } from 'react-native';
 import { supabase } from './supabaseClient';
 import { useNavigation } from '@react-navigation/native';
@@ -16,7 +17,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const navigation = useNavigation();
-  const [email, setEmail] = useState('');
+  const [email, setEmail]     = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
@@ -24,7 +25,7 @@ export default function LoginScreen() {
     if (error) {
       Alert.alert('Error', error.message);
     } else {
-      // Usamos la ruta "Home" que definimos en el Stack Navigator
+      // Ahora sí existe 'Home' en el stack
       navigation.replace('Home');
     }
   };
@@ -39,22 +40,25 @@ export default function LoginScreen() {
       <TextInput
         placeholder="Email"
         style={styles.input}
-        onChangeText={setEmail}
         value={email}
+        onChangeText={setEmail}
       />
       <TextInput
         placeholder="Password"
         secureTextEntry
         style={styles.input}
-        onChangeText={setPassword}
         value={password}
+        onChangeText={setPassword}
       />
       <Button
         title="Iniciar Sessió"
         onPress={handleLogin}
         color="#206A4E"
       />
-      <Text style={styles.link} onPress={() => navigation.navigate('Signup')}>
+      <Text
+        style={styles.link}
+        onPress={() => navigation.navigate('Signup')}
+      >
         No tens compte? Registra’t
       </Text>
     </View>

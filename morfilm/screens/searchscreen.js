@@ -13,6 +13,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import { textStyles } from '../theme/typography';
+import FooterNav from '../components/footerNav';
 
 const { width } = Dimensions.get('window');
 
@@ -92,7 +93,7 @@ export default function SearchScreen() {
         )}
       </View>
       {/* Si deseas agregar el footer, descomenta la siguiente línea */}
-      {/* <FooterNav /> */}
+      { <FooterNav /> }
     </SafeAreaView>
   );
 }

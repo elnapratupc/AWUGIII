@@ -11,7 +11,7 @@
   "dependencies": {
     "@expo/webpack-config": "^19.0.0",
     "@supabase/supabase-js": "^2.49.4",
-    "expo": "^49.0.0",
+    "expo": "^49.0.23",
     "expo-constants": "~14.4.2",
     "expo-font": "~11.4.0",
     "expo-linking": "~5.0.2",

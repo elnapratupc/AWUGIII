@@ -74,7 +74,7 @@ export default function HomeScreen() {
     if (error) {
       Alert.alert('Error', error.message);
     } else {
-      navigation.replace('LoginScreen');
+      navigation.replace('Login');
     }
   };
 
