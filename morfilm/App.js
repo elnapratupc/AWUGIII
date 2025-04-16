@@ -47,11 +47,11 @@ export default function App() {
           {!loggedIn ? (
             <>
               <Stack.Screen 
-                name="LoginScreen" 
+                name="Login" 
                 component={LoginScreen} 
               />
               <Stack.Screen 
-                name="SignupScreen" 
+                name="Signup" 
                 component={SignupScreen} 
               />
             </>
@@ -59,19 +59,19 @@ export default function App() {
             <>
               {/* Pantallas de la app */}
               <Stack.Screen 
-                name="HomeScreen" 
+                name="Home" 
                 component={HomeScreen} 
               />
               <Stack.Screen 
-                name="SearchScreen" 
+                name="Search" 
                 component={SearchScreen} 
               />
               <Stack.Screen 
-                name="ReelsScreen" 
+                name="Reels" 
                 component={ReelsScreen} 
               />
               <Stack.Screen 
-                name="DetailsScreen" 
+                name="Details" 
                 component={DetailsScreen} 
               />
             </>
