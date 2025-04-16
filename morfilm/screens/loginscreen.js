@@ -1,57 +1,66 @@
-//https://www.figma.com/design/LGJmOwBrURlk4xYNH15mmX/Prototip-AWUGIII?node-id=39-15561&t=y3FzRbd2wninaYHL-4
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import {
+  View,
+  TextInput,
+  Button,
+  Text,
+  Alert,
+  StyleSheet,
+  Dimensions,
+  Image,
+} from 'react-native';
 import { supabase } from './supabaseClient';
+import { useNavigation } from '@react-navigation/native';
 
-export default function LoginScreen({ navigation }) {
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+export default function LoginScreen() {
+  const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       Alert.alert('Error', error.message);
     } else {
-      Alert.alert('Éxito', 'Has iniciado sesión');
-      // Redirige a la pantalla principal
+      navigation.replace('Home');
     }
-  };
-
-  const handleSignupRedirect = () => {
-    navigation.navigate('Signup');
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Log in to proceed.</Text>
+      {/* Logo at the top */}
+      <Image
+        source={require('../assets/icons/splash-icon.png')} 
+        style={styles.logo}
+      />
+
+      <Text style={styles.title}>Inicia Sessió</Text>
 
       <TextInput
         placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
         style={styles.input}
-        autoCapitalize="none"
-        keyboardType="email-address"
+        onChangeText={setEmail}
+        value={email}
       />
       <TextInput
         placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
         secureTextEntry
+        style={styles.input}
+        onChangeText={setPassword}
+        value={password}
       />
 
-      <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
-        <Text style={styles.loginText}>Log in</Text>
-      </TouchableOpacity>
+      <Button
+        title="Iniciar Sessió"
+        onPress={handleLogin}
+        color="#206A4E"
+      />
 
-      <TouchableOpacity style={styles.signupBtn} onPress={handleSignupRedirect}>
-        <Text style={styles.signupText}>Create an account</Text>
-      </TouchableOpacity>
+      <Text style={styles.link} onPress={() => navigation.navigate('Signup')}>
+        No tens compte? Registra’t
+      </Text>
     </View>
   );
 }
@@ -59,42 +68,37 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F1F7F4',
-    padding: 20,
+    backgroundColor: '#fff',
     justifyContent: 'center',
+    padding: 20,
   },
-  header: {
-    fontSize: 22,
-    marginBottom: 40,
+  // Logo style
+  logo: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
+    alignSelf: 'center', 
+    marginBottom: 24, 
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 24,
     textAlign: 'center',
+    fontWeight: 'bold',
+    color: '#333',
   },
   input: {
-    backgroundColor: '#E3E5E1',
-    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
     padding: 12,
     marginBottom: 16,
-    fontSize: 16,
+    backgroundColor: '#f9f9f9',
+    color: '#000',
   },
-  loginBtn: {
-    backgroundColor: '#215D4F',
-    padding: 12,
-    borderRadius: 30,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  loginText: {
-    color: 'white',
-    fontSize: 16,
-  },
-  signupBtn: {
-    borderWidth: 1,
-    borderColor: '#215D4F',
-    padding: 12,
-    borderRadius: 30,
-    alignItems: 'center',
-  },
-  signupText: {
-    color: '#215D4F',
-    fontSize: 16,
+  link: {
+    marginTop: 16,
+    color: '#206A4E',
+    textAlign: 'center',
   },
 });

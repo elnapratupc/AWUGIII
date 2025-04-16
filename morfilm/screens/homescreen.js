@@ -1,18 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Dimensions, Image, FlatList, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  Dimensions,
+  Image,
+  FlatList,
+  ScrollView,
+  Alert,
+  TouchableOpacity,
+  Linking
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native';
 import { textStyles } from '../theme/typography';
 import { API_URL } from '../api/tmdb';
-import { Linking, TouchableOpacity } from 'react-native';
-
+import { supabase } from '../screens/supabaseClient';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const HomeScreen = () => {
+export default function HomeScreen() {
+  const navigation = useNavigation();
   const [movies, setMovies] = useState([]);
   const [trailers, setTrailers] = useState([]);
 
-  // Pel·lícules populars
+  // Fetch popular movies
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -23,11 +36,10 @@ const HomeScreen = () => {
         console.error('Error carregant pel·lícules:', error);
       }
     };
-
     fetchMovies();
   }, []);
 
-  // Tràilers de les primeres pel·lis populars
+  // Fetch trailers from first 5 popular movies
   useEffect(() => {
     const fetchTrailersFromPopular = async () => {
       try {
@@ -58,9 +70,25 @@ const HomeScreen = () => {
     fetchTrailersFromPopular();
   }, []);
 
-  // Card pel·lis
+  // Function to handle logout
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      Alert.alert('Error', error.message);
+    } else {
+      navigation.replace('Login');
+    }
+  };
+
+  // Movie card renderer
   const renderMovieCard = ({ item }) => (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => {
+        // Navigate to Details screen with this movie's data
+        navigation.navigate('Details', { movie: item });
+      }}
+    >
       <Image
         source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
         style={styles.poster}
@@ -75,10 +103,10 @@ const HomeScreen = () => {
           year: 'numeric',
         })}
       </Text>
-    </View>
+    </TouchableOpacity>
   );
 
-  // Card tràilers
+  // Trailer card renderer
   const renderTrailerCard = ({ item }) => {
     const youtubeThumbnail = `https://img.youtube.com/vi/${item.key}/hqdefault.jpg`;
 
@@ -91,18 +119,18 @@ const HomeScreen = () => {
               {item.movieTitle}
             </Text>
             <Text style={[textStyles.bodySmall, { color: '#404943' }]}>
-  {item.published_at
-    ? new Date(item.published_at).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      })
-    : '—'}
-</Text>
+            {item.published_at
+                ? new Date(item.published_at).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })
+                : '—'}
+            </Text>
           </View>
           <TouchableOpacity onPress={() => Linking.openURL(`https://www.youtube.com/watch?v=${item.key}`)}>
-  <Icon name="play-circle-outline" size={24} color="#171d1a" />
-</TouchableOpacity>
+            <Icon name="play-circle-outline" size={24} color="#171d1a" />
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -114,6 +142,9 @@ const HomeScreen = () => {
         <View style={styles.topBar}>
           <Icon name="account-circle-outline" size={20} color="#171d1a" />
           <Icon name="cog-outline" size={20} color="#171d1a" />
+          <TouchableOpacity onPress={handleLogout}>
+            <Icon name="logout" size={20} color="#171d1a" />
+          </TouchableOpacity>
         </View>
 
         <Text style={[textStyles.headlineSmall, styles.welcome]}>Welcome.</Text>
@@ -224,4 +255,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
