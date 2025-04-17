@@ -51,22 +51,62 @@ export default function DetailsScreen() {
     );
   }
 
+  const [isFavorite, setIsFavorite] = useState(false);
+
+useEffect(() => {
+  const checkFavorite = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data } = await supabase
+      .from('favorites')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('movie_id', movie.id)
+      .maybeSingle();
+
+    if (data) setIsFavorite(true);
+  };
+
+  if (movie?.id) checkFavorite();
+}, [movie?.id]);
+
+
   const userScore = movie.vote_average ? Math.round(movie.vote_average * 10) : 0;
   const tagline = movie.tagline || 'Love is a hustle.';
   const movieYear = movie.release_date ? new Date(movie.release_date).getFullYear() : '—';
 
   const handleAddToFavorites = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    const { error } = await supabase.from('favorites').insert({
-      user_id: user.id,
-      movie_id: movie.id,
-      title: movie.title,
-      poster_path: movie.poster_path,
-      release_date: movie.release_date,
-    });
-    if (error) Alert.alert('Error', error.message);
-    else Alert.alert('Added to favorites!');
+  
+    if (isFavorite) {
+      // Si ja està als favorits → l'eliminem
+      const { error } = await supabase
+        .from('favorites')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('movie_id', movie.id);
+  
+      if (!error) {
+        setIsFavorite(false);
+        Alert.alert('Removed from favorites');
+      }
+    } else {
+      // Si no hi és → l’afegim
+      const { error } = await supabase.from('favorites').insert({
+        user_id: user.id,
+        movie_id: movie.id,
+        title: movie.title,
+        poster_path: movie.poster_path,
+        release_date: movie.release_date,
+      });
+  
+      if (!error) {
+        setIsFavorite(true);
+        Alert.alert('Added to favorites');
+      }
+    }
   };
+  
+  
 
   const handleAddToWatchlist = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -117,10 +157,17 @@ export default function DetailsScreen() {
             <Text style={styles.tagline}>{tagline}</Text>
 
             <View style={styles.actionButtonRow}>
-              <TouchableOpacity style={styles.iconButton} onPress={handleAddToFavorites}>
-                <Icon name="heart-outline" size={18} color="#206A4E" />
-                <Text style={styles.iconButtonText}>Add to favorites</Text>
-              </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton} onPress={handleAddToFavorites}>
+  <Icon
+    name={isFavorite ? 'heart' : 'heart-outline'}
+    size={18}
+    color={isFavorite ? '#ba1a1a' : '#206A4E'}
+  />
+  <Text style={styles.iconButtonText}>
+    {isFavorite ? 'In favorites' : 'Add to favorites'}
+  </Text>
+</TouchableOpacity>
+
               <TouchableOpacity style={styles.iconButton} onPress={handleAddToWatchlist}>
                 <Icon name="playlist-plus" size={18} color="#206A4E" />
                 <Text style={styles.iconButtonText}>Add to list…</Text>

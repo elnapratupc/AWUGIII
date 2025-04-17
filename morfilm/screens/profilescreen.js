@@ -11,6 +11,8 @@ import { supabase } from './supabaseClient';
 import { textStyles } from '../theme/typography';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
+
+
 export default function ProfileScreen() {
   const [nickname, setNickname] = useState('');
   const [loading, setLoading] = useState(true);
