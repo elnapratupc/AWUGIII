@@ -3,14 +3,18 @@ import {
   View,
   Text,
   StyleSheet,
+  Image,
   ImageBackground,
   TouchableOpacity,
   ScrollView,
   Dimensions,
   FlatList,
+  Alert,
 } from 'react-native';
+
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { supabase } from './supabaseClient';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -24,9 +28,9 @@ export default function DetailsScreen() {
   if (!movie) {
     return (
       <View style={styles.container}>
-        <Text>No hay datos de la película.</Text>
+        <Text>No movie data available.</Text>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={{ color: '#206A4E', marginTop: 20 }}>Volver</Text>
+          <Text style={{ color: '#206A4E', marginTop: 20 }}>Go back</Text>
         </TouchableOpacity>
       </View>
     );
@@ -36,7 +40,7 @@ export default function DetailsScreen() {
     const fetchRelatedMovies = async () => {
       try {
         const res = await fetch(
-          `https://api.themoviedb.org/3/movie/${movie.id}/similar?api_key=TU_API_KEY&language=en-US&page=1`
+          `https://api.themoviedb.org/3/movie/${movie.id}/similar?api_key=2903fc4c6bd618022e8965d44f45e020&language=en-US&page=1`
         );
         const data = await res.json();
         setRelatedMovies(data.results || []);
@@ -54,20 +58,57 @@ export default function DetailsScreen() {
     ? new Date(movie.release_date).getFullYear()
     : '—';
 
+  const handleAddToFavorites = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase.from('favorites').insert({
+      user_id: user.id,
+      movie_id: movie.id,
+      title: movie.title,
+      poster_path: movie.poster_path,
+      release_date: movie.release_date,
+    });
+
+    if (error) Alert.alert('Error', error.message);
+    else Alert.alert('Added to favorites!');
+  };
+
+  const handleAddToWatchlist = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase.from('watchlist').insert({
+      user_id: user.id,
+      movie_id: movie.id,
+      title: movie.title,
+      poster_path: movie.poster_path,
+      release_date: movie.release_date,
+    });
+
+    if (error) Alert.alert('Error', error.message);
+    else Alert.alert('Added to watchlist!');
+  };
+
   const renderRelatedMovie = ({ item }) => (
-    <View style={styles.relatedCard}>
-      <ImageBackground
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => navigation.push('Details', { movie: item })}
+    >
+      <Image
         source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
-        style={styles.relatedPoster}
+        style={styles.poster}
       />
-      <Text style={styles.relatedTitle} numberOfLines={1}>
+      <Text style={{ fontSize: 14, fontWeight: '600', color: '#171d1a' }} numberOfLines={1}>
         {item.title}
       </Text>
-      <Text style={styles.relatedYear}>
-        {new Date(item.release_date).getFullYear() || ''}
+      <Text style={{ fontSize: 12, color: '#404943' }}>
+        {new Date(item.release_date).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        })}
       </Text>
-    </View>
+    </TouchableOpacity>
   );
+  
+  
 
   return (
     <View style={styles.container}>
@@ -78,18 +119,34 @@ export default function DetailsScreen() {
           resizeMode="cover"
         >
           <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-            <Icon name="chevron-down" size={24} color="#fff" />
-          </TouchableOpacity>
+  <View style={styles.circleButton}>
+    <Icon name="chevron-down" size={28} color="#0B1B17" />
+  </View>
+</TouchableOpacity>
+
+
           <View style={styles.heroContent}>
             <Text style={styles.movieTitle}>
-              {movie.title} {movieYear}
+              {movie.title} <Text style={styles.movieYear}>{movieYear}</Text>
             </Text>
             <Text style={styles.tagline}>{tagline}</Text>
+
+            <View style={styles.actionButtonRow}>
+              <TouchableOpacity style={styles.iconButton} onPress={handleAddToFavorites}>
+                <Icon name="heart-outline" size={18} color="#206A4E" />
+                <Text style={styles.iconButtonText}>Add to favorites</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.iconButton} onPress={handleAddToWatchlist}>
+                <Icon name="playlist-plus" size={18} color="#206A4E" />
+                <Text style={styles.iconButtonText}>Add to list…</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </ImageBackground>
 
         <View style={styles.contentContainer}>
           <Text style={styles.overview}>{movie.overview}</Text>
+
           <View style={styles.statsRow}>
             <View style={styles.userScoreContainer}>
               <Text style={styles.scoreValue}>{userScore}%</Text>
@@ -100,28 +157,30 @@ export default function DetailsScreen() {
               <Icon name="apple" size={22} color="#000" style={{ marginHorizontal: 6 }} />
               <Text style={styles.tvText}>TV</Text>
             </View>
-            <TouchableOpacity style={styles.actionButton}>
-              <Icon name="heart-outline" size={20} color="#206A4E" />
-              <Text style={styles.actionText}>Favorites</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-              <Icon name="playlist-plus" size={20} color="#206A4E" />
-              <Text style={styles.actionText}>To list...</Text>
-            </TouchableOpacity>
           </View>
 
-          <Text style={styles.sectionTitle}>Related movies</Text>
-          {relatedMovies.length > 0 ? (
-            <FlatList
-              data={relatedMovies}
-              keyExtractor={(item) => item.id.toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              renderItem={renderRelatedMovie}
-            />
-          ) : (
-            <Text style={styles.noRelated}>No related movies found</Text>
-          )}
+          <View style={styles.relatedRow}>
+  <Icon
+    name="fire"
+    size={22}
+    color="#171d1a"
+    style={styles.trendingIcon}
+  />
+  <Text style={styles.sectionTitle}>Related movies</Text>
+</View>
+{relatedMovies.length > 0 ? (
+  <FlatList
+    data={relatedMovies}
+    keyExtractor={(item) => item.id.toString()}
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    contentContainerStyle={styles.carousel}
+    renderItem={renderRelatedMovie}
+  />
+) : (
+  <Text style={styles.noRelated}>No related movies found</Text>
+)}
+
         </View>
       </ScrollView>
     </View>
@@ -131,7 +190,7 @@ export default function DetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#f5fbf5',
   },
   heroImage: {
     width: SCREEN_WIDTH,
@@ -155,10 +214,35 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 4,
   },
+  movieYear: {
+    fontSize: 18,
+    fontWeight: '400',
+    color: '#fff',
+  },
   tagline: {
     fontSize: 16,
     fontStyle: 'italic',
     color: '#fff',
+  },
+  actionButtonRow: {
+    flexDirection: 'row',
+    marginTop: 12,
+    gap: 12,
+    flexWrap: 'wrap',
+  },
+  iconButton: {
+    backgroundColor: '#f5fbf5',
+    borderRadius: 100,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconButtonText: {
+    fontSize: 14,
+    color: '#206A4E',
+    marginLeft: 6,
+    fontWeight: '600',
   },
   contentContainer: {
     padding: 16,
@@ -190,6 +274,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
+  closeButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    zIndex: 10,
+  },
+  
+  circleButton: {
+    backgroundColor: '#D2EFE2',
+    borderRadius: 999,
+    padding: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
   watchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -204,16 +303,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
-  actionButton: {
+  relatedRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 16,
   },
-  actionText: {
-    fontSize: 14,
-    color: '#206A4E',
-    marginLeft: 4,
+  trendingIcon: {
+    marginRight: 1,
   },
+  
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
@@ -244,4 +341,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
+  card: {
+    width: 120,
+    backgroundColor: '#e4eae4',
+    borderRadius: 16,
+    padding: 8,
+    marginRight: 12,
+    alignItems: 'flex-start',
+  },
+  poster: {
+    width: '100%',
+    aspectRatio: 2 / 3,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  carousel: {
+    paddingRight: 8,
+    marginTop: 16,
+  },
+  
 });
