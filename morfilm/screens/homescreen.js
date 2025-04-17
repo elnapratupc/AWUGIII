@@ -141,13 +141,16 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.outerContainer}>
       <ScrollView contentContainerStyle={styles.innerContainer}>
-        <View style={styles.topBar}>
-          <Icon name="account-circle-outline" size={20} color="#171d1a" />
-          <Icon name="cog-outline" size={20} color="#171d1a" />
-          <TouchableOpacity onPress={handleLogout}>
-            <Icon name="logout" size={20} color="#171d1a" />
-          </TouchableOpacity>
-        </View>
+      <View style={styles.topBar}>
+  <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+    <Icon name="account-circle-outline" size={24} color="#171d1a" />
+  </TouchableOpacity>
+  <Icon name="cog-outline" size={24} color="#171d1a" />
+  <TouchableOpacity onPress={handleLogout}>
+    <Icon name="logout" size={24} color="#171d1a" />
+  </TouchableOpacity>
+</View>
+
 
         <Text style={[textStyles.headlineSmall, styles.welcome]}>
           Welcome.

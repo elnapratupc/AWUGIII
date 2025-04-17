@@ -12,6 +12,8 @@ import ReelsScreen from './screens/reelsscreen';
 import LoginScreen from './screens/loginscreen';
 import SignupScreen from './screens/signupscreen';
 import DetailsScreen from './screens/detailsscreen';
+import ProfileScreen from './screens/profilescreen';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -52,6 +54,8 @@ export default function App() {
           <Stack.Screen name="Search"  component={SearchScreen}  />
           <Stack.Screen name="Reels"   component={ReelsScreen}   />
           <Stack.Screen name="Details" component={DetailsScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaView>
