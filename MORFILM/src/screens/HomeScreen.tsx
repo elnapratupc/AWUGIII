@@ -51,7 +51,7 @@ export default function HomeScreen() {
       <HeaderBar onLogout={handleLogout} />
   
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <MovieSection title="Tendències" movies={movies} onSelectMovie={handleSelectMovie} />
+        <MovieSection title="Trending" movies={movies} onSelectMovie={handleSelectMovie} />
         <TrailerSection trailers={trailers} />
         <MovieSection title="Veure gratis" movies={freeToWatch} onSelectMovie={handleSelectMovie} />
       </ScrollView>

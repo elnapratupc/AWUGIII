@@ -1,27 +1,54 @@
 import React from 'react';
-import { Text } from 'react-native-paper';
-import { FlatList, View } from 'react-native';
+import { FlatList, View, StyleSheet } from 'react-native';
+import { Text, useTheme, Icon } from 'react-native-paper';
 import { Movie } from '../lib/tmdb';
 import MovieCard from './MovieCard';
 
 interface Props {
   title: string;
+  icon?: string; // Opcional: per mostrar una icona al costat del títol
   movies: Movie[];
   onSelectMovie: (movie: Movie) => void;
 }
 
-export default function MovieSection({ title, movies, onSelectMovie }: Props) {
+export default function MovieSection({ title, icon, movies, onSelectMovie }: Props) {
+  const { colors } = useTheme();
+
   return (
-    <View>
-      <Text variant="titleLarge" style={{ marginLeft: 16, marginTop: 8 }}>{title}</Text>
+    <View style={styles.section}>
+      <View style={styles.titleRow}>
+        {icon && <Icon source={icon} size={20} color={colors.onBackground} style={styles.icon} />}
+        <Text variant="titleLarge">{title}</Text>
+      </View>
+
       <FlatList
         data={movies}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <MovieCard movie={item} onPress={onSelectMovie} />}
+        renderItem={({ item }) => (
+          <MovieCard movie={item} onPress={onSelectMovie} width={140} />
+        )}
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 8 }}
+        contentContainerStyle={styles.list}
       />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  section: {
+    marginTop: 12,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 16,
+    marginBottom: 4,
+  },
+  icon: {
+    marginRight: 6,
+  },
+  list: {
+    paddingHorizontal: 8,
+  },
+});
