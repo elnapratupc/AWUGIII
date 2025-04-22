@@ -7,20 +7,36 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../lib/supabaseClient';
 import AuthInput from '../components/AuthInput';
+import FooterNav from '../components/FooterNav';
 
 export default function SignupScreen() {
   const navigation = useNavigation();
+
   const [email, setEmail] = useState('');
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
   const handleSignup = async () => {
+    setEmailError('');
+    setPasswordError('');
+
+    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!validEmail.test(email)) {
+      setEmailError('Enter a valid email (example@email.com)');
+      return;
+    }
+
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Les contrasenyes no coincideixen');
+      setPasswordError('Passwords do not match');
       return;
     }
 
@@ -35,65 +51,86 @@ export default function SignupScreen() {
     if (error) {
       Alert.alert('Error', error.message);
     } else {
-      Alert.alert('Compte creat!', 'Revisa el teu correu per verificar-lo.');
+      Alert.alert('Account created!', 'Check your email to verify it.');
       navigation.navigate('Login');
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Create an account to proceed</Text>
+    <View style={{ flex: 1, backgroundColor: '#f5fbf5' }}>
+      {/* Header */}
+      <View style={styles.topBar}>
+        <View />
+        <Icon name="cog-outline" size={24} color="#171d1a" />
+      </View>
 
-      <AuthInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <AuthInput
-        placeholder="Nickname"
-        value={nickname}
-        onChangeText={setNickname}
-      />
-      <AuthInput
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <AuthInput
-        placeholder="Confirm password"
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-      />
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Create an account to proceed</Text>
 
-      <TouchableOpacity style={styles.buttonPrimary} onPress={handleSignup}>
-        <Text style={styles.buttonPrimaryText}>Create an account</Text>
-      </TouchableOpacity>
+        <AuthInput
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          error={!!emailError}
+          errorMessage={emailError}
+        />
+        <AuthInput
+          placeholder="Nickname"
+          value={nickname}
+          onChangeText={setNickname}
+        />
+        <AuthInput
+          placeholder="Password"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          error={!!passwordError}
+        />
+        <AuthInput
+          placeholder="Confirm password"
+          secureTextEntry
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          error={!!passwordError}
+          errorMessage={passwordError}
+        />
 
-      <TouchableOpacity
-        style={styles.buttonSecondary}
-        onPress={() => navigation.navigate('Login')}
-      >
-        <Text style={styles.buttonSecondaryText}>Back to Log in</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <TouchableOpacity style={styles.buttonPrimary} onPress={handleSignup}>
+          <Text style={styles.buttonPrimaryText}>Create an account</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.buttonSecondary}
+          onPress={() => navigation.navigate('Login')}
+        >
+          <Text style={styles.buttonSecondaryText}>Back to Log in</Text>
+        </TouchableOpacity>
+      </ScrollView>
+
+      <FooterNav />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+    paddingTop: 48,
+  },
   container: {
-    backgroundColor: '#f5fbf5',
     flexGrow: 1,
-    justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
+    paddingTop: 16,
   },
   title: {
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 24,
     color: '#171d1a',
+    alignSelf: 'flex-start',
   },
   buttonPrimary: {
     backgroundColor: '#206a4e',
