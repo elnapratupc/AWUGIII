@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text, ScrollView } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
   Movie,
   Trailer,
@@ -14,7 +15,6 @@ import MovieSection from '../components/MovieSection';
 import TrailerSection from '../components/TrailerSection';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { ScrollView } from 'react-native';
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -43,17 +43,32 @@ export default function HomeScreen() {
   };
 
   const handleSelectMovie = (movie: Movie) => {
-    //navigation.navigate('Details', { movie });
+    // navigation.navigate('Details', { movie });
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <HeaderBar onLogout={handleLogout} />
-  
+    <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <MovieSection title="Trending" movies={movies} onSelectMovie={handleSelectMovie} />
+        
+        {/* 🔁 ARA el Header està DINS del ScrollView */}
+        <HeaderBar onLogout={handleLogout} />
+  
+        {/* 🔥 Trending */}
+        <View style={styles.sectionTitleRow}>
+          <Icon name="fire" size={22} color="#171d1a" style={styles.icon} />
+          <Text style={styles.sectionTitle}>Trending</Text>
+        </View>
+        <MovieSection movies={movies} onSelectMovie={handleSelectMovie} />
+  
+        {/* 🎞️ Latest Trailers */}
+        <View style={styles.sectionTitleRow}>
+          <Icon name="movie" size={22} color="#171d1a" style={styles.icon} />
+          <Text style={styles.sectionTitle}>Latest Trailers</Text>
+        </View>
         <TrailerSection trailers={trailers} />
-        <MovieSection title="Veure gratis" movies={freeToWatch} onSelectMovie={handleSelectMovie} />
+  
+        {/* 📺 Veure gratis */}
+        
       </ScrollView>
   
       <View style={styles.footer}>
@@ -61,9 +76,17 @@ export default function HomeScreen() {
       </View>
     </View>
   );
+  
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5fbf5', // Fons verd clar, com a la captura
+  },
+  scrollContainer: {
+    paddingBottom: 120,
+  },
   footer: {
     position: 'absolute',
     bottom: 0,
@@ -71,9 +94,18 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 10,
   },
-
-  scrollContainer: {
-    paddingBottom: 120,
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 24,
+    marginLeft: 16,
   },
-  
+  icon: {
+    marginRight: 10,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#171d1a',
+  },
 });

@@ -1,38 +1,44 @@
 import React from 'react';
-import { Card, Text } from 'react-native-paper';
-import { Movie } from '../lib/tmdb';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
-interface Props {
-  movie: Movie;
-  onPress: (movie: Movie) => void;
-  width?: number;
-}
-
-const formatDate = (dateString: string) =>
-  new Date(dateString).toLocaleDateString('ca-ES', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-
-export default function MovieCard({ movie, onPress, width = 140 }: Props) {
+export default function MovieCard({ movie, onPress }) {
   return (
-    <Card
-      style={{ width, margin: 12 }}
-      onPress={() => onPress(movie)}
-    >
-      <Card.Cover
-        source={{ uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}` }}
-        style={{ aspectRatio: 2 / 3 }}
-      />
-      <Card.Content>
-        <Text variant="labelLarge" numberOfLines={1}>
-          {movie.title}
-        </Text>
-        <Text variant="bodySmall">
-          {formatDate(movie.release_date)}
-        </Text>
-      </Card.Content>
-    </Card>
+    <TouchableOpacity style={styles.card} onPress={() => onPress(movie)}>
+      <Image source={{ uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}` }} style={styles.poster} />
+      <Text style={styles.title} numberOfLines={1}>{movie.title}</Text>
+      <Text style={styles.date}>
+        {new Date(movie.release_date).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        })}
+      </Text>
+    </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    width: 120,
+    backgroundColor: '#e4eae4',
+    borderRadius: 16,
+    padding: 8,
+    marginRight: 12,
+    alignItems: 'flex-start',
+  },
+  poster: {
+    width: '100%',
+    aspectRatio: 2 / 3,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  title: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#171d1a',
+  },
+  date: {
+    fontSize: 12,
+    color: '#404943',
+  },
+});

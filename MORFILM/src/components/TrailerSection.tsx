@@ -1,6 +1,5 @@
 import React from 'react';
 import { FlatList, View } from 'react-native';
-import { Text } from 'react-native-paper';
 import TrailerCard from './TrailerCard';
 
 interface Props {
@@ -14,10 +13,7 @@ interface Props {
 
 export default function TrailerSection({ trailers }: Props) {
   return (
-    <View>
-      <Text variant="titleLarge" style={{ marginLeft: 16, marginTop: 24 }}>
-        Tràilers recents
-      </Text>
+    <View style={{ marginTop: 16 }}>
       <FlatList
         data={trailers}
         keyExtractor={(item) => item.id}
