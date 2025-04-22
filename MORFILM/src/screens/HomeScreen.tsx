@@ -43,7 +43,7 @@ export default function HomeScreen() {
   };
 
   const handleSelectMovie = (movie: Movie) => {
-    // navigation.navigate('Details', { movie });
+    navigation.navigate('Details', { movie });
   };
 
   return (
