@@ -8,66 +8,105 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { supabase } from '../lib/supabaseClient';
 import AuthInput from '../components/AuthInput';
+import FooterNav from '../components/FooterNav';
 
 export default function LoginScreen() {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
   const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      Alert.alert('Error', error.message);
+    setEmailError('');
+    setPasswordError('');
+
+    if (!email.includes('@') || !email.includes('.')) {
+      setEmailError('Enter a valid email (example@email.com)');
+      return;
     }
-    // 🔥 El canvi de pantalla ja es fa automàticament a App.tsx gràcies a onAuthStateChange
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      if (error.message.toLowerCase().includes('invalid login')) {
+        setPasswordError('Incorrect password');
+      } else {
+        Alert.alert('Login error', error.message);
+      }
+    }
+
+    // No cal navigation.replace('Home'), App.tsx ja ho gestiona
   };
-  
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Log in to proceed.</Text>
+    <View style={{ flex: 1, backgroundColor: '#f5fbf5' }}>
+      {/* Top bar amb icona de configuració */}
+      <View style={styles.topBar}>
+        <View />
+        <Icon name="cog-outline" size={24} color="#171d1a" />
+      </View>
 
-      <AuthInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <AuthInput
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Log in to proceed.</Text>
 
-      <TouchableOpacity style={styles.buttonPrimary} onPress={handleLogin}>
-        <Text style={styles.buttonPrimaryText}>Log in</Text>
-      </TouchableOpacity>
+        <AuthInput
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          error={!!emailError}
+          errorMessage={emailError}
+        />
 
-      <TouchableOpacity
-        style={styles.buttonSecondary}
-        onPress={() => navigation.navigate('Signup')}
-      >
-        <Text style={styles.buttonSecondaryText}>Create an account</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <AuthInput
+          placeholder="Password"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          error={!!passwordError}
+          errorMessage={passwordError}
+        />
+
+        <TouchableOpacity style={styles.buttonPrimary} onPress={handleLogin}>
+          <Text style={styles.buttonPrimaryText}>Log in</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.buttonSecondary}
+          onPress={() => navigation.navigate('Signup')}
+        >
+          <Text style={styles.buttonSecondaryText}>Create an account</Text>
+        </TouchableOpacity>
+      </ScrollView>
+
+      <FooterNav />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+    paddingTop: 48,
+  },
   container: {
-    backgroundColor: '#f5fbf5',
     flexGrow: 1,
-    justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
+    paddingTop: 16,
   },
   title: {
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 24,
     color: '#171d1a',
+    alignSelf: 'flex-start',
   },
   buttonPrimary: {
     backgroundColor: '#206a4e',

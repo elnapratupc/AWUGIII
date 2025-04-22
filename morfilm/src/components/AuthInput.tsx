@@ -1,13 +1,53 @@
 import React from 'react';
-import { TextInput, StyleSheet, TextInputProps } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { TextInput, HelperText, useTheme } from 'react-native-paper';
 
-export default function AuthInput(props: TextInputProps) {
+interface Props {
+  placeholder: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  secureTextEntry?: boolean;
+  error?: boolean;
+  errorMessage?: string;
+}
+
+export default function AuthInput({
+  placeholder,
+  value,
+  onChangeText,
+  secureTextEntry = false,
+  error = false,
+  errorMessage = '',
+}: Props) {
+  const { colors } = useTheme();
+
   return (
-    <TextInput
-      {...props}
-      placeholderTextColor="#333"
-      style={styles.input}
-    />
+    <>
+      <TextInput
+        mode="flat"
+        label={placeholder}
+        value={value}
+        onChangeText={onChangeText}
+        secureTextEntry={secureTextEntry}
+        style={styles.input}
+        underlineColor={error ? '#B3261E' : 'transparent'}
+        activeUnderlineColor={error ? '#B3261E' : '#206a4e'}
+        textColor={colors.onSurface}
+        error={error}
+        right={
+          error ? (
+            <TextInput.Icon icon="alert-circle" color="#B3261E" />
+          ) : value ? (
+            <TextInput.Icon icon="close" onPress={() => onChangeText('')} />
+          ) : null
+        }
+      />
+      {error && !!errorMessage && (
+        <HelperText type="error" visible={true} padding="none">
+          {errorMessage}
+        </HelperText>
+      )}
+    </>
   );
 }
 
@@ -15,10 +55,7 @@ const styles = StyleSheet.create({
   input: {
     width: '100%',
     backgroundColor: '#eaefe9',
-    padding: 14,
-    marginBottom: 16,
     borderRadius: 10,
-    fontSize: 16,
-    color: '#171d1a',
+    marginBottom: 8,
   },
 });
