@@ -1,1 +1,0 @@
-//carousel item (Material Design)

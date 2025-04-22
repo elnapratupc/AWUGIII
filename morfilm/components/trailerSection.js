@@ -1,1 +1,0 @@
-//section with carousel (Material Design)

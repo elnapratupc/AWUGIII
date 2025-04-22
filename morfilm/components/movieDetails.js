@@ -1,1 +1,0 @@
-//examples-reviews-mobile (Material Design)
