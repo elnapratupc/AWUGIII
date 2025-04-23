@@ -1,0 +1,1 @@
+//Configurar la pag de cerca aquí amb header, footer... etc
