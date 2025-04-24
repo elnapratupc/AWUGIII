@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Dimensions } from 'react-native';
+import { View, StyleSheet, FlatList, Dimensions } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { supabase } from '../lib/supabaseClient';
 import ReelItem from '../components/ReelItem'; 
 import HeaderBar from '../components/HeaderBar'; 
 import FooterNav from '../components/FooterNav'; 
@@ -11,28 +12,28 @@ const windowHeight = Dimensions.get('window').height; // Altura de la pantalla p
 export default function ReelsScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  // Ejemplo de datos de reels
+  // Datos de reels
   const [reels, setReels] = useState([
-    { id: '1', videoUrl: 'https://youtube.com/shorts/7NlR7Mxy2DU?si=6XaH3AdGMt-0Y3u-' },
-    { id: '2', videoUrl: 'https://youtube.com/shorts/TqWAARTMCOE?si=Ze1AxzSk7tZ6sBoh' },
-    { id: '3', videoUrl: 'https://www.youtube.com/embed/m_ZkvNxSmRI' },
-    // Agrega más objetos de reels según lo necesario
+    { id: '1', videoUrl: 'https://www.youtube.com/embed/m_ZkvNxSmRI' },
+    { id: '2', videoUrl: 'https://www.youtube.com/embed/epvUIWtZ7TI'},
+    { id: '3', videoUrl: 'https://www.youtube.com/embed/SKKSz29BR5Q' },
+    { id: '4', videoUrl: 'https://www.youtube.com/embed/hKekLRO-RR8' },
+    { id: '5', videoUrl: 'https://www.youtube.com/embed/KP7ZdEe_8iE'},
+    { id: '6', videoUrl: 'https://www.youtube.com/embed/QO7vY4HpBdw' },
+    // Agregar más reels
   ]);
 
-  // Función que maneja la navegación a detalles de un reel
-  const handleSelectReel = (reel: { id: string; videoUrl: string }) => {
-    navigation.navigate('ReelDetails', { reel });
-  };
-
   const renderReel = ({ item }: { item: { id: string; videoUrl: string } }) => (
-    <TouchableOpacity onPress={() => handleSelectReel(item)}>
-      <ReelItem reel={item} />
-    </TouchableOpacity>
+    <ReelItem reel={item} /> // Usamos el componente ReelItem para renderizar cada video
   );
+
+  const handleLogout = async () => {
+      await supabase.auth.signOut();
+    };
 
   return (
     <View style={styles.container}>
-      <HeaderBar />
+      <HeaderBar onLogout={handleLogout} showWelcome={false} />
 
       {/* Lista de reels */}
       <FlatList

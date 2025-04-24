@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native'; // Importa useRoute
 
 export default function FooterNav() {
   const navigation = useNavigation();
-  const [activeTab, setActiveTab] = useState('Home');
+  const route = useRoute(); // Usamos useRoute para acceder a la ruta actual
+  const [activeTab, setActiveTab] = useState(route.name); // Establecemos el tab activo al nombre de la ruta actual
+
+  // Detecta cuando la pantalla activa cambia
+  useEffect(() => {
+    setActiveTab(route.name);
+  }, [route]);
 
   const tabs = [
     { key: 'Home', label: 'Home', icon: 'home-outline' },
@@ -22,14 +28,14 @@ export default function FooterNav() {
             key={tab.key}
             style={styles.navItem}
             onPress={() => {
-              setActiveTab(tab.key);
-              navigation.navigate(tab.key);
+              setActiveTab(tab.key); // Actualizamos el tab activo
+              navigation.navigate(tab.key); // Navegamos a la pantalla correspondiente
             }}
           >
             <View
               style={[
                 styles.iconWrapper,
-                focused && styles.activeIconWrapper,
+                focused && styles.activeIconWrapper, // Aplicamos el estilo para el tab activo
               ]}
             >
               <Icon
@@ -66,7 +72,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   activeIconWrapper: {
-    backgroundColor: '#dff3e0',
+    backgroundColor: '#dff3e0', // Fondo verde claro para el tab activo
   },
   navText: {
     fontSize: 12,

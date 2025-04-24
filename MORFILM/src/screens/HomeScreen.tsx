@@ -51,7 +51,7 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         
         {/* 🔁 ARA el Header està DINS del ScrollView */}
-        <HeaderBar onLogout={handleLogout} />
+        <HeaderBar onLogout={handleLogout} showWelcome={true} />
   
         {/* 🔥 Trending */}
         <View style={styles.sectionTitleRow}>

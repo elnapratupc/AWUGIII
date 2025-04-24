@@ -4,9 +4,10 @@ import { Appbar, Text, useTheme } from 'react-native-paper';
 
 interface Props {
   onLogout: () => void;
+  showWelcome?: boolean; // Prop opcional para controlar si mostrar el "Welcome"
 }
 
-export default function HeaderBar({ onLogout }: Props) {
+export default function HeaderBar({ onLogout, showWelcome = false }: Props) {
   const { colors } = useTheme();
 
   return (
@@ -17,9 +18,11 @@ export default function HeaderBar({ onLogout }: Props) {
         <Appbar.Action icon="cog-outline" onPress={onLogout} />
       </Appbar>
 
-      <Text variant="headlineSmall" style={[styles.welcome, { color: colors.onBackground }]}>
-        Welcome.
-      </Text>
+      {showWelcome && (
+        <Text variant="headlineSmall" style={[styles.welcome, { color: colors.onBackground }]}>
+          Welcome.
+        </Text>
+      )}
     </View>
   );
 }
