@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Movie } from '../lib/tmdb';
 import HomeScreen from '../screens/HomeScreen';
 import DetailsScreen from '../screens/DetailsScreen';
+import SearchScreen from '../screens/SearchScreen';
 import ReelsScreen from '../screens/ReelsScreen';
 
 // importar pantalles que falten
@@ -10,7 +11,7 @@ import ReelsScreen from '../screens/ReelsScreen';
 export type RootStackParamList = {
   Home: undefined;
   Reels: undefined;
-  //Search: undefined;
+  Search: undefined;
   // afegir altres pantalles aquí (ex: Details, Profile...)
   Details: { movie: Movie }; // 👈 Afegeix aquesta línia
 
@@ -23,7 +24,7 @@ export default function AppNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Home">
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Reels" component={ReelsScreen} />
-      {/* <Stack.Screen name="Search" component={SearchScreen} /> */}
+      <Stack.Screen name="Search" component={SearchScreen} />
       {/* afegir altres pantalles aquí */}
       <Stack.Screen name="Details" component={DetailsScreen} />
 

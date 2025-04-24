@@ -32,7 +32,7 @@ export default function HomeScreen() {
         setTrailers(t);
         setFreeToWatch(f);
       } catch (e) {
-        console.error('Error carregant dades:', e);
+        console.error('Error fetching movies:', e);
       }
     };
     load();
