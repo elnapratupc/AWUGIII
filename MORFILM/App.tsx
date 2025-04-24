@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useColorScheme } from 'react-native';
+import { useColorScheme, View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { PaperProvider } from 'react-native-paper';
 import { MorfilmLightTheme, MorfilmDarkTheme } from './src/theme/morfilmTheme';
 import { supabase } from './src/lib/supabaseClient';
 
-import AppNavigator from './src/navigation/AppNavigator'; // Pantalles quan estàs loguejat
-import AuthStack from './src/navigation/AuthStack';       // Login + Signup
+import AppNavigator from './src/navigation/AppNavigator'; // Pantallas cuando estás logueado
+import AuthStack from './src/navigation/AuthStack'; // Login + Signup
 
 export default function App() {
   const scheme = useColorScheme();
@@ -17,16 +17,24 @@ export default function App() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('SESSION:', session); // Verifica la sesión
       setSession(session);
       setLoading(false);
     });
 
     supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('Auth state change:', session); // Verifica el cambio de sesión
       setSession(session);
     });
   }, []);
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#4caf50" />
+      </View>
+    );
+  }
 
   return (
     <PaperProvider theme={theme}>
