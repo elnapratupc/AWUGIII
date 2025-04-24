@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTheme } from 'react-native-paper';
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
@@ -21,6 +22,7 @@ export default function HomeScreen() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [trailers, setTrailers] = useState<Trailer[]>([]);
   const [freeToWatch, setFreeToWatch] = useState<Movie[]>([]);
+  const { colors } = useTheme();
 
   useEffect(() => {
     const load = async () => {
@@ -47,27 +49,27 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         
-        {/* 🔁 ARA el Header està DINS del ScrollView */}
+        {/*Header està dins del ScrollView */}
         <HeaderBar onLogout={handleLogout} showWelcome={true} />
   
-        {/* 🔥 Trending */}
+        {/*Trending */}
         <View style={styles.sectionTitleRow}>
-          <Icon name="fire" size={22} color="#171d1a" style={styles.icon} />
-          <Text style={styles.sectionTitle}>Trending</Text>
+          <Icon name="fire" size={22} color={colors.onBackground} style={styles.icon} />
+          <Text style={[styles.sectionTitle, { color: colors.onBackground }]}>Trending</Text>
         </View>
         <MovieSection movies={movies} onSelectMovie={handleSelectMovie} />
   
-        {/* 🎞️ Latest Trailers */}
+        {/*Latest Trailers */}
         <View style={styles.sectionTitleRow}>
-          <Icon name="movie" size={22} color="#171d1a" style={styles.icon} />
-          <Text style={styles.sectionTitle}>Latest Trailers</Text>
+          <Icon name="movie" size={22} color={colors.onBackground} style={styles.icon} />
+          <Text style={[styles.sectionTitle, { color: colors.onBackground }]}>Latest Trailers</Text>
         </View>
         <TrailerSection trailers={trailers} />
   
-        {/* 📺 Veure gratis */}
+        {/*Veure gratis, secció encara per fer */}
         
       </ScrollView>
   
@@ -82,7 +84,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5fbf5', // Fons verd clar, com a la captura
   },
   scrollContainer: {
     paddingBottom: 120,
@@ -106,6 +107,5 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: '600',
-    color: '#171d1a',
   },
 });

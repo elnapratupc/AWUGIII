@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTheme } from 'react-native-paper';
 import {
   View,
   Text,
@@ -25,6 +26,7 @@ export default function DetailsScreen() {
   const { movie } = route.params || {};
   const [relatedMovies, setRelatedMovies] = useState<Movie[]>([]);
   const [isFavorite, setIsFavorite] = useState(false);
+  const { colors } = useTheme();
 
   const userScore = movie?.vote_average ? Math.round(movie.vote_average * 10) : 0;
   const tagline = movie?.tagline || 'Love is a hustle.';
@@ -185,7 +187,7 @@ export default function DetailsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5fbf5' },
+  container: { flex: 1 },
   heroImage: { width: SCREEN_WIDTH, height: SCREEN_HEIGHT * 0.45, justifyContent: 'flex-end' },
   closeButton: { position: 'absolute', top: 40, right: 20, zIndex: 10 },
   circleButton: { backgroundColor: '#D2EFE2', borderRadius: 999, padding: 3 },

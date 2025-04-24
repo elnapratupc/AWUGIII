@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTheme } from 'react-native-paper';
 import { View, StyleSheet, FlatList, Dimensions } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -11,8 +12,9 @@ const windowHeight = Dimensions.get('window').height; // Altura de la pantalla p
 
 export default function ReelsScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const { colors } = useTheme();
 
-  // Datos de reels
+  // Links de reels
   const [reels, setReels] = useState([
     { id: '1', videoUrl: 'https://www.youtube.com/embed/m_ZkvNxSmRI' },
     { id: '2', videoUrl: 'https://www.youtube.com/embed/epvUIWtZ7TI'},
@@ -20,7 +22,7 @@ export default function ReelsScreen() {
     { id: '4', videoUrl: 'https://www.youtube.com/embed/hKekLRO-RR8' },
     { id: '5', videoUrl: 'https://www.youtube.com/embed/KP7ZdEe_8iE'},
     { id: '6', videoUrl: 'https://www.youtube.com/embed/QO7vY4HpBdw' },
-    // Agregar más reels
+    // Afegir mes reels
   ]);
 
   const renderReel = ({ item }: { item: { id: string; videoUrl: string } }) => (
@@ -32,7 +34,7 @@ export default function ReelsScreen() {
     };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <HeaderBar onLogout={handleLogout} showWelcome={false} />
 
       {/* Lista de reels */}
@@ -53,7 +55,7 @@ export default function ReelsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5fbf5',
+    //backgroundColor: '#f5fbf5',
   },
   scrollContainer: {
     paddingBottom: 120,

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTheme } from 'react-native-paper';
 import {
   View,
   Text,
@@ -14,6 +15,7 @@ import AuthInput from '../components/AuthInput';
 import FooterNav from '../components/FooterNav';
 
 export default function LoginScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
