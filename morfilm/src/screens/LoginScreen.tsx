@@ -12,7 +12,6 @@ import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { supabase } from '../lib/supabaseClient';
 import AuthInput from '../components/AuthInput';
-import FooterNav from '../components/FooterNav';
 
 export default function LoginScreen() {
   const { colors } = useTheme();
@@ -42,12 +41,12 @@ export default function LoginScreen() {
       }
     }
 
-    // No cal navigation.replace('Home'), App.tsx ja ho gestiona
+    // No navigation.replace('Home'), App.tsx already handles it.
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f5fbf5' }}>
-      {/* Top bar amb icona de configuració */}
+      {/* Top bar with settings icon */}
       <View style={styles.topBar}>
         <View />
         <Icon name="cog-outline" size={24} color="#171d1a" />
@@ -84,8 +83,6 @@ export default function LoginScreen() {
           <Text style={styles.buttonSecondaryText}>Create an account</Text>
         </TouchableOpacity>
       </ScrollView>
-
-      <FooterNav />
     </View>
   );
 }

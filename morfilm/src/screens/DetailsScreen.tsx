@@ -93,8 +93,11 @@ export default function DetailsScreen() {
       poster_path: movie.poster_path,
       release_date: movie.release_date,
     });
-    if (error) Alert.alert('Error', error.message);
-    else Alert.alert('Added to watchlist!');
+    if (error) {
+      Alert.alert('Error', error.message);
+    } else {
+      Alert.alert('Added to watchlist!');
+    }
   };
 
   if (!movie) return <Text>Movie not found</Text>;

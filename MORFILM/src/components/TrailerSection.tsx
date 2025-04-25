@@ -16,7 +16,7 @@ export default function TrailerSection({ trailers }: Props) {
     <View style={{ marginTop: 16 }}>
       <FlatList
         data={trailers}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id}  
         renderItem={({ item }) => <TrailerCard trailer={item} />}
         horizontal
         showsHorizontalScrollIndicator={false}

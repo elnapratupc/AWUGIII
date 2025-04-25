@@ -11,7 +11,6 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../lib/supabaseClient';
 import AuthInput from '../components/AuthInput';
-import FooterNav from '../components/FooterNav';
 
 export default function SignupScreen() {
   const navigation = useNavigation();
@@ -107,7 +106,7 @@ export default function SignupScreen() {
         </TouchableOpacity>
       </ScrollView>
 
-      <FooterNav />
+      {/* Removed FooterNav here */}
     </View>
   );
 }
