@@ -7,7 +7,8 @@ import {
   Trailer,
   fetchPopularMovies,
   fetchTrailersFromMovies,
-  fetchFreeToWatch
+  fetchFreeToWatch,
+  fetchTrendingMovies
 } from '../lib/tmdb';
 import { supabase } from '../lib/supabaseClient';
 import FooterNav from '../components/FooterNav';
@@ -25,20 +26,24 @@ export default function HomeScreen() {
   const { colors } = useTheme();
 
   useEffect(() => {
-    const load = async () => {
+    const loadContent = async () => {
       try {
-        const m = await fetchPopularMovies();
-        const t = await fetchTrailersFromMovies(m);
-        const f = await fetchFreeToWatch();
-        setMovies(m);
-        setTrailers(t);
-        setFreeToWatch(f);
-      } catch (e) {
-        console.error('Error fetching movies:', e);
+        const trendingMovies = await fetchTrendingMovies();
+        setMovies(trendingMovies);
+  
+        const trendingTrailers = await fetchTrailersFromMovies(trendingMovies);
+        setTrailers(trendingTrailers);
+  
+        const freeMovies = await fetchFreeToWatch();
+        setFreeToWatch(freeMovies);
+        
+      } catch (error) {
+        console.error('Error carregant contingut:', error);
       }
     };
-    load();
-  }, []);
+  
+    loadContent();
+  }, []);  
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -52,32 +57,41 @@ export default function HomeScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         
-        {/*Header està dins del ScrollView */}
+        {/* Header */}
         <HeaderBar onLogout={handleLogout} showWelcome={true} />
   
-        {/*Trending */}
-        <View style={styles.sectionTitleRow}>
-          <Icon name="fire" size={22} color={colors.onBackground} style={styles.icon} />
-          <Text style={[styles.sectionTitle, { color: colors.onBackground }]}>Trending</Text>
-        </View>
-        <MovieSection movies={movies} onSelectMovie={handleSelectMovie} />
+        {/* Trending */}
+        <MovieSection
+          title="Trending"
+          icon="fire"
+          movies={movies}
+          onSelectMovie={handleSelectMovie}
+        />
   
-        {/*Latest Trailers */}
-        <View style={styles.sectionTitleRow}>
-          <Icon name="movie" size={22} color={colors.onBackground} style={styles.icon} />
-          <Text style={[styles.sectionTitle, { color: colors.onBackground }]}>Latest Trailers</Text>
-        </View>
-        <TrailerSection trailers={trailers} />
+        {/* Latest Trailers */}
+        <TrailerSection
+          title="Latest Trailers"
+          icon="movie"
+          trailers={trailers}
+        />
   
-        {/*Veure gratis, secció encara per fer */}
+        {/* Free to Watch */}
+        <MovieSection
+          title="Free to Watch"
+          icon="eye"
+          movies={freeToWatch}
+          onSelectMovie={handleSelectMovie}
+        />
         
       </ScrollView>
   
+      {/* Footer */}
       <View style={styles.footer}>
         <FooterNav />
       </View>
     </View>
   );
+  
   
 }
 
