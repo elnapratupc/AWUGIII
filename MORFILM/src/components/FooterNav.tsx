@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useNavigation, useRoute } from '@react-navigation/native'; // Importa useRoute
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-export default function FooterNav() {
-  const navigation = useNavigation();
-  const route = useRoute(); // Usamos useRoute para acceder a la ruta actual
-  const [activeTab, setActiveTab] = useState(route.name); // Establecemos el tab activo al nombre de la ruta actual
+type FooterNavProps = {
+  activeTabOverride?: string;
+};
 
-  // Detecta cuando la pantalla activa cambia
+export default function FooterNav({ activeTabOverride }: FooterNavProps) {
+  const navigation = useNavigation<any>(); 
+  const route = useRoute();
+  const [activeTab, setActiveTab] = useState(route.name);
+
   useEffect(() => {
-    setActiveTab(route.name);
-  }, [route]);
+    if (activeTabOverride !== undefined) {
+      setActiveTab(activeTabOverride);
+    } else {
+      setActiveTab(route.name);
+    }
+  }, [route, activeTabOverride]);
 
   const tabs = [
     { key: 'Home', label: 'Home', icon: 'home-outline' },
@@ -28,14 +35,15 @@ export default function FooterNav() {
             key={tab.key}
             style={styles.navItem}
             onPress={() => {
-              setActiveTab(tab.key); // Actualizamos el tab activo
-              navigation.navigate(tab.key); // Navegamos a la pantalla correspondiente
+              if (route.name !== tab.key) {
+                navigation.replace(tab.key);
+              }
             }}
           >
             <View
               style={[
                 styles.iconWrapper,
-                focused && styles.activeIconWrapper, // Aplicamos el estilo para el tab activo
+                focused && styles.activeIconWrapper,
               ]}
             >
               <Icon
@@ -72,7 +80,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   activeIconWrapper: {
-    backgroundColor: '#dff3e0', // Fondo verde claro para el tab activo
+    backgroundColor: '#dff3e0',
   },
   navText: {
     fontSize: 12,

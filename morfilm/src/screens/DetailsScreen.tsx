@@ -176,7 +176,6 @@ export default function DetailsScreen() {
             </View>
           </View>
 
-          {/* 🎯 ARA: Reutilitzem MovieSection per Related Movies */}
           <MovieSection
             title="Related movies"
             icon="fire"

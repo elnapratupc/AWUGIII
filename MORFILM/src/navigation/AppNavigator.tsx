@@ -7,6 +7,8 @@ import SearchScreen from '../screens/SearchScreen';
 import ReelsScreen from '../screens/ReelsScreen';
 import DetailsScreen from '../screens/DetailsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import LoginScreen from '../screens/LoginScreen';
+import SignupScreen from '../screens/SignupScreen';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -14,6 +16,8 @@ export type RootStackParamList = {
   Reels: undefined;
   Details: { movie: Movie };
   ProfileScreen: undefined;
+  Login: undefined;
+  Signup: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -26,6 +30,8 @@ export default function AppNavigator() {
       <Stack.Screen name="Reels" component={ReelsScreen} />
       <Stack.Screen name="Details" component={DetailsScreen} />
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Signup" component={SignupScreen} />
     </Stack.Navigator>
   );
 }
