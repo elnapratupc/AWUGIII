@@ -40,13 +40,10 @@ export default function LoginScreen() {
         Alert.alert('Login error', error.message);
       }
     }
-
-    // No navigation.replace('Home'), App.tsx already handles it.
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f5fbf5' }}>
-      {/* Top bar with settings icon */}
       <View style={styles.topBar}>
         <View />
         <Icon name="cog-outline" size={24} color="#171d1a" />

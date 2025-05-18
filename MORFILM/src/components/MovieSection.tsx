@@ -5,8 +5,8 @@ import { Movie } from '../lib/tmdb';
 import MovieCard from './MovieCard';
 
 interface Props {
-  title: string;
-  icon?: string; // Opcional: per mostrar una icona al costat del títol
+  title?: string;
+  icon?: string;
   movies: Movie[];
   onSelectMovie: (movie: Movie) => void;
 }
@@ -16,10 +16,16 @@ export default function MovieSection({ title, icon, movies, onSelectMovie }: Pro
 
   return (
     <View style={styles.section}>
-      <View style={styles.titleRow}>
-        {icon && <Icon source={icon} size={20} color={colors.onBackground} style={styles.icon} />}
-        <Text variant="titleLarge">{title}</Text>
-      </View>
+      {title && (
+        <View style={styles.sectionTitleRow}>
+          {icon && (
+            <Icon source={icon} size={22} color={colors.onBackground} style={styles.icon} />
+          )}
+          <Text style={[styles.sectionTitle, { color: colors.onBackground }]} variant="titleLarge">
+            {title}
+          </Text>
+        </View>
+      )}
 
       <FlatList
         data={movies}
@@ -39,11 +45,16 @@ const styles = StyleSheet.create({
   section: {
     marginTop: 12,
   },
-  titleRow: {
+  sectionTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginLeft: 16,
     marginBottom: 4,
+  },
+  sectionTitle: {
+    fontSize: 22, // Segons material-theme/title/large
+    fontFamily: 'Lexend Deca',
+    fontWeight: '400',
   },
   icon: {
     marginRight: 6,
