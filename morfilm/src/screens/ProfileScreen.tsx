@@ -7,17 +7,17 @@ import {
   TouchableOpacity,
   Image,
   SafeAreaView,
-  ScrollView
+  ScrollView,
 } from 'react-native';
 import { supabase } from '../lib/supabaseClient';
 import { Movie } from '../lib/tmdb';
 import FooterNav from '../components/FooterNav';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useNavigation } from '@react-navigation/native';
-
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
   const [user, setUser] = useState<any>(null);
   const [favorites, setFavorites] = useState<Movie[]>([]);
   const [watchlist, setWatchlist] = useState<Movie[]>([]);
@@ -57,7 +57,7 @@ export default function ProfileScreen() {
     };
 
     fetchUserData();
-  }, []);
+  }, [isFocused]); // 🔁 Refresca cada cop que tornes a la pantalla
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -103,7 +103,7 @@ export default function ProfileScreen() {
           <Text style={styles.manageBtnText}>Manage lists</Text>
         </TouchableOpacity>
 
-        {/* Favorites */}
+        {/* FAVORITES */}
         {favorites.length > 0 && (
           <>
             <Text style={styles.sectionTitle}>Favorites</Text>
@@ -132,7 +132,7 @@ export default function ProfileScreen() {
                     onPress={() => handleRemoveFavorite(item.movie_id)}
                     style={styles.removeIcon}
                   >
-                    <Icon name="heart-off" size={18} color="#ba1a1a" />
+                    <Icon name="heart" size={18} color="#ba1a1a" />
                   </TouchableOpacity>
                 </View>
               ))}
@@ -140,7 +140,7 @@ export default function ProfileScreen() {
           </>
         )}
 
-        {/* Watchlist */}
+        {/* WATCHLIST */}
         {watchlist.length > 0 && (
           <>
             <Text style={styles.sectionTitle}>Watchlist</Text>
@@ -169,7 +169,7 @@ export default function ProfileScreen() {
           </>
         )}
 
-        {/* Logout */}
+        {/* LOGOUT */}
         <TouchableOpacity style={styles.manageBtn} onPress={handleLogout}>
           <Icon name="logout" size={18} color="#171d1a" />
           <Text style={styles.manageBtnText}>Logout</Text>

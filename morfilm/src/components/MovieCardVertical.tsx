@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'rea
 import { Movie } from '../lib/tmdb';
 
 const screenWidth = Dimensions.get('window').width;
-const cardWidth = (screenWidth - 48) / 2; // 16 + 16 + 8 entre targetes
+const cardWidth = (screenWidth - 48) / 2; 
 
 export default function MovieCardVertical({
   movie,
