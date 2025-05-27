@@ -55,7 +55,7 @@ export default function ReelsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    
+     
   },
   scrollContainer: {
     paddingBottom: 120,
