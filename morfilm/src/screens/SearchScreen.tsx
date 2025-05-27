@@ -4,6 +4,7 @@ import { Searchbar } from 'react-native-paper';
 import HeaderBar from '../components/HeaderBar';
 import FooterNav from '../components/FooterNav';
 import MovieSection from '../components/MovieSection';
+import MovieCardVertical from '../components/MovieCardVertical';
 import {
   fetchPopularMovies,
   fetchTrendingMovies,
@@ -16,6 +17,8 @@ import { Movie } from '../lib/tmdb';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { FlatList } from 'react-native';
+
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -85,12 +88,18 @@ export default function SearchScreen() {
 
         {query.length > 0 ? (
           searchResults.length > 0 ? (
-            <MovieSection
-              title="Search Results"
-              icon="magnify"
-              movies={searchResults}
-              onSelectMovie={handleMoviePress}
-            />
+            import { FlatList } from 'react-native';
+
+<FlatList
+  data={searchResults}
+  keyExtractor={(item) => item.id.toString()}
+  numColumns={2}
+  contentContainerStyle={styles.resultsContainer}
+  renderItem={({ item }) => (
+    <MovieCardVertical movie={item} onPress={handleMoviePress} />
+  )}
+/>
+
           ) : (
             <View style={styles.noResults}>
               <Text style={styles.noResultsText}>No results found</Text>
@@ -157,6 +166,9 @@ const styles = StyleSheet.create({
   },
   noResultsIcon: {
     marginTop: 8,
+  },
+  resultsContainer: {
+    paddingBottom: 16,
   },
   footer: {
     position: 'absolute',
