@@ -1,4 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import {
+  View,
+  StyleSheet,
+  Keyboard,
+  Text,
+  Dimensions,
+  FlatList,
+} from 'react-native';
 import { Searchbar } from 'react-native-paper';
 import HeaderBar from '../components/HeaderBar';
 import FooterNav from '../components/FooterNav';
@@ -16,8 +24,6 @@ import { Movie } from '../lib/tmdb';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { View, StyleSheet, ScrollView, Keyboard, Text, Dimensions, FlatList } from 'react-native';
-
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -74,7 +80,7 @@ export default function SearchScreen() {
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <HeaderBar onLogout={handleLogout} showWelcome={false} />
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.scrollContainer}>
         <Searchbar
           placeholder="Search movies"
           value={query}
@@ -87,15 +93,17 @@ export default function SearchScreen() {
 
         {query.length > 0 ? (
           searchResults.length > 0 ? (
-            <View style={styles.resultsContainer}>
-              {searchResults.map((movie) => (
-                <MovieCardVertical
-                  key={movie.id}
-                  movie={movie}
-                  onPress={handleMoviePress}
-                />
-              ))}
-            </View>
+            <FlatList
+              data={searchResults}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <MovieCardVertical movie={item} onPress={handleMoviePress} />
+              )}
+              numColumns={2}
+              columnWrapperStyle={styles.row}
+              contentContainerStyle={styles.resultsContainer}
+              scrollEnabled={false}
+            />
           ) : (
             <View style={styles.noResults}>
               <Text style={styles.noResultsText}>No results found</Text>
@@ -124,7 +132,7 @@ export default function SearchScreen() {
             />
           </>
         )}
-      </ScrollView>
+      </View>
 
       <View style={styles.footer}>
         <FooterNav />
@@ -134,14 +142,15 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     flex: 1,
   },
   scrollContainer: {
     paddingBottom: 120,
+    paddingHorizontal: 16,
   },
   searchbar: {
-    margin: 16,
+    marginVertical: 16,
     borderRadius: 12,
     backgroundColor: '#eaefe9ff',
   },
@@ -165,6 +174,9 @@ const styles = StyleSheet.create({
   },
   resultsContainer: {
     paddingBottom: 16,
+  },
+  row: {
+    justifyContent: 'space-between',
   },
   footer: {
     position: 'absolute',
