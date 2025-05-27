@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Keyboard } from 'react-native';
+import { View, StyleSheet, ScrollView, Keyboard, Text, Dimensions } from 'react-native';
 import { Searchbar } from 'react-native-paper';
 import HeaderBar from '../components/HeaderBar';
 import FooterNav from '../components/FooterNav';
 import MovieSection from '../components/MovieSection';
-import { fetchPopularMovies, fetchTrendingMovies, fetchFreeToWatch, fetchMoviesByQuery } from '../lib/tmdb';
+import {
+  fetchPopularMovies,
+  fetchTrendingMovies,
+  fetchFreeToWatch,
+  fetchMoviesByQuery,
+} from '../lib/tmdb';
 import { useTheme } from '@react-navigation/native';
 import { supabase } from '../lib/supabaseClient';
 import { Movie } from '../lib/tmdb';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
+const windowHeight = Dimensions.get('window').height;
 
 export default function SearchScreen() {
   const [query, setQuery] = useState('');
@@ -71,17 +79,24 @@ export default function SearchScreen() {
           onChangeText={setQuery}
           onIconPress={Keyboard.dismiss}
           style={styles.searchbar}
-          iconColor={theme.colors.outline}
-          inputStyle={{ fontFamily: 'Lexend Deca' }}
+          icon={() => <Icon name="magnify" size={24} color={theme.colors.outline} />}
+          inputStyle={styles.searchbarInput}
         />
 
         {query.length > 0 ? (
-          <MovieSection
-            title="Search Results"
-            icon="magnify"
-            movies={searchResults}
-            onSelectMovie={handleMoviePress}
-          />
+          searchResults.length > 0 ? (
+            <MovieSection
+              title="Search Results"
+              icon="magnify"
+              movies={searchResults}
+              onSelectMovie={handleMoviePress}
+            />
+          ) : (
+            <View style={styles.noResults}>
+              <Text style={styles.noResultsText}>No results found</Text>
+              <Icon name="emoticon-sad-outline" size={40} color="#999" style={styles.noResultsIcon} />
+            </View>
+          )
         ) : (
           <>
             <MovieSection
@@ -124,6 +139,24 @@ const styles = StyleSheet.create({
     margin: 16,
     borderRadius: 12,
     backgroundColor: '#eaefe9ff',
+  },
+  searchbarInput: {
+    fontFamily: 'Lexend Deca',
+    fontSize: 16,
+  },
+  noResults: {
+    height: windowHeight * 0.6,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noResultsText: {
+    fontSize: 22,
+    fontWeight: '400',
+    fontFamily: 'Lexend Deca',
+    color: '#999',
+  },
+  noResultsIcon: {
+    marginTop: 8,
   },
   footer: {
     position: 'absolute',

@@ -1,21 +1,21 @@
-aimport React, { useEffect, useState } from 'react';
-import { useTheme } from 'react-native-paper';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  Image,
   ImageBackground,
   TouchableOpacity,
   ScrollView,
   Dimensions,
-  Alert,
+  Alert
 } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { useTheme } from 'react-native-paper';
 import { supabase } from '../lib/supabaseClient';
 import MovieSection from '../components/MovieSection';
+import MovieCard from '../components/MovieCard';
 import { Movie } from '../lib/tmdb';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -24,9 +24,11 @@ export default function DetailsScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const { movie } = route.params || {};
+  const { colors } = useTheme();
+
   const [relatedMovies, setRelatedMovies] = useState<Movie[]>([]);
   const [isFavorite, setIsFavorite] = useState(false);
-  const { colors } = useTheme();
+  const [userFavorites, setUserFavorites] = useState<Movie[]>([]);
 
   const userScore = movie?.vote_average ? Math.round(movie.vote_average * 10) : 0;
   const tagline = movie?.tagline || 'Love is a hustle.';
@@ -34,15 +36,11 @@ export default function DetailsScreen() {
 
   useEffect(() => {
     const fetchRelatedMovies = async () => {
-      try {
-        const res = await fetch(
-          `https://api.themoviedb.org/3/movie/${movie.id}/similar?api_key=2903fc4c6bd618022e8965d44f45e020&language=en-US&page=1`
-        );
-        const data = await res.json();
-        setRelatedMovies(data.results || []);
-      } catch (error) {
-        console.log('Error fetching related movies:', error);
-      }
+      const res = await fetch(
+        `https://api.themoviedb.org/3/movie/${movie.id}/similar?api_key=2903fc4c6bd618022e8965d44f45e020&language=en-US&page=1`
+      );
+      const data = await res.json();
+      setRelatedMovies(data.results || []);
     };
     if (movie?.id) fetchRelatedMovies();
   }, [movie?.id]);
@@ -61,43 +59,71 @@ export default function DetailsScreen() {
     if (movie?.id) checkFavorite();
   }, [movie?.id]);
 
-  const handleAddToFavorites = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (isFavorite) {
-      await supabase
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error } = await supabase
         .from('favorites')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('movie_id', movie.id);
+        .select('*')
+        .eq('user_id', user.id);
+      if (!error) setUserFavorites(data || []);
+    };
+    fetchFavorites();
+  }, [isFavorite]);
+
+  const toggleFavorite = async () => {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (!user) {
+    console.log('❌ NO USER:', userError);
+    return;
+  }
+
+  if (isFavorite) {
+    // Remove from favorites
+    const { error } = await supabase
+      .from('favorites')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('movie_id', movie.id);
+
+    if (error) {
+      console.log('❌ DELETE ERROR:', error.message);
+      Alert.alert('Error', error.message);
+    } else {
       setIsFavorite(false);
       Alert.alert('Removed from favorites');
-    } else {
-      await supabase.from('favorites').insert({
-        user_id: user.id,
-        movie_id: movie.id,
-        title: movie.title,
-        poster_path: movie.poster_path,
-        release_date: movie.release_date,
-      });
-      setIsFavorite(true);
-      Alert.alert('Added to favorites');
     }
-  };
-
-  const handleAddToWatchlist = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    const { error } = await supabase.from('watchlist').insert({
+  } else {
+    // Add to favorites
+    const { error } = await supabase.from('favorites').insert({
       user_id: user.id,
       movie_id: movie.id,
       title: movie.title,
       poster_path: movie.poster_path,
       release_date: movie.release_date,
     });
+
     if (error) {
+      console.log('❌ INSERT ERROR:', error.message);
       Alert.alert('Error', error.message);
     } else {
-      Alert.alert('Added to watchlist!');
+      setIsFavorite(true);
+      Alert.alert('Added to favorites');
     }
+  }
+};
+
+
+  const handleRemoveFromFavorites = async (favMovieId: number) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase
+      .from('favorites')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('movie_id', favMovieId);
+
+    setUserFavorites(prev => prev.filter(m => m.movie_id !== favMovieId));
   };
 
   if (!movie) return <Text>Movie not found</Text>;
@@ -122,7 +148,7 @@ export default function DetailsScreen() {
             <Text style={styles.tagline}>{tagline}</Text>
 
             <View style={styles.actionButtonRow}>
-              <TouchableOpacity style={styles.iconButton} onPress={handleAddToFavorites}>
+              <TouchableOpacity style={styles.iconButton} onPress={toggleFavorite}>
                 <Icon
                   name={isFavorite ? 'heart' : 'heart-outline'}
                   size={18}
@@ -131,11 +157,6 @@ export default function DetailsScreen() {
                 <Text style={styles.iconButtonText}>
                   {isFavorite ? 'In favorites' : 'Add to favorites'}
                 </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.iconButton} onPress={handleAddToWatchlist}>
-                <Icon name="playlist-plus" size={18} color="#206A4E" />
-                <Text style={styles.iconButtonText}>Add to list…</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -182,6 +203,35 @@ export default function DetailsScreen() {
             movies={relatedMovies}
             onSelectMovie={(m) => navigation.push('Details', { movie: m })}
           />
+
+          {userFavorites.length > 0 && (
+            <>
+              <Text style={styles.sectionTitle}>Your Favorites</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 16 }}>
+                {userFavorites.map((fav) => (
+                  <View key={fav.id} style={{ marginRight: 12, position: 'relative' }}>
+                    <MovieCard
+                      movie={fav}
+                      onPress={() => navigation.push('Details', { movie: fav })}
+                    />
+                    <TouchableOpacity
+                      onPress={() => handleRemoveFromFavorites(fav.movie_id)}
+                      style={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        backgroundColor: 'white',
+                        borderRadius: 999,
+                        padding: 4,
+                      }}
+                    >
+                      <Icon name="heart-off" size={18} color="#ba1a1a" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+            </>
+          )}
         </View>
       </ScrollView>
     </View>
@@ -198,8 +248,20 @@ const styles = StyleSheet.create({
   movieYear: { fontSize: 18, fontWeight: '400', color: '#fff' },
   tagline: { fontSize: 16, fontStyle: 'italic', color: '#fff', marginBottom: 6 },
   actionButtonRow: { flexDirection: 'row', marginTop: 12, gap: 12 },
-  iconButton: { backgroundColor: '#f5fbf5', borderRadius: 100, paddingVertical: 10, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center' },
-  iconButtonText: { fontSize: 14, color: '#206A4E', marginLeft: 6, fontWeight: '600' },
+  iconButton: {
+    backgroundColor: '#f5fbf5',
+    borderRadius: 100,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconButtonText: {
+    fontSize: 14,
+    color: '#206A4E',
+    marginLeft: 6,
+    fontWeight: '600',
+  },
   contentContainer: { padding: 16 },
   overview: { fontSize: 14, lineHeight: 20, color: '#333', marginBottom: 16 },
   statsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
@@ -207,4 +269,11 @@ const styles = StyleSheet.create({
   scoreTextWrapper: { marginLeft: 12 },
   scoreValue: { fontSize: 18, fontWeight: 'bold', color: '#206A4E' },
   scoreLabel: { fontSize: 12, color: '#333' },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginTop: 20,
+    marginBottom: 10,
+    paddingHorizontal: 16,
+  },
 });

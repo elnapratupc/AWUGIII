@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, Button, FlatList, ActivityIndicator, TouchableOpacity, Image, SafeAreaView, ScrollView } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  ActivityIndicator,
+  TouchableOpacity,
+  Image,
+  SafeAreaView,
+  ScrollView
+} from 'react-native';
 import { supabase } from '../lib/supabaseClient';
-import { Movie } from '../lib/tmdb'; // Asegúrate de tener la interfaz `Movie` disponible
-import FooterNav from '../components/FooterNav'; // Importa FooterNav si lo necesitas
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Asegúrate de importar Icon
-import { useNavigation } from '@react-navigation/native'; // Importa useNavigation
+import { Movie } from '../lib/tmdb';
+import FooterNav from '../components/FooterNav';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ProfileScreen() {
-  const navigation = useNavigation(); // Hacemos que `navigation` esté disponible
+  const navigation = useNavigation();
   const [user, setUser] = useState<any>(null);
   const [favorites, setFavorites] = useState<Movie[]>([]);
   const [watchlist, setWatchlist] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [nickname, setNickname] = useState('');
 
   useEffect(() => {
@@ -20,29 +29,27 @@ export default function ProfileScreen() {
       setUser(user);
 
       if (user) {
-        const nicknameFromMeta = user?.user_metadata?.nickname;
-        setNickname(nicknameFromMeta || 'User');
+        setNickname(user.user_metadata?.nickname || 'User');
 
-        // Obtener los favoritos desde Supabase
-        try {
-          const { data: favs, error: favError } = await supabase
-            .from('favorites')
-            .select('*')
-            .eq('user_id', user.id);
+        const { data: favs } = await supabase
+          .from('favorites')
+          .select('*')
+          .eq('user_id', user.id);
 
-          const { data: watch, error: watchError } = await supabase
-            .from('watchlist')
-            .select('*')
-            .eq('user_id', user.id);
+        const uniqueFavs = favs
+          ? favs.filter((fav, index, self) =>
+              index === self.findIndex((f) => f.movie_id === fav.movie_id)
+            )
+          : [];
 
-          setFavorites(favs || []);
-          setWatchlist(watch || []);
+        setFavorites(uniqueFavs);
 
-          if (favError) console.error('Error fetching favorites:', favError);
-          if (watchError) console.error('Error fetching watchlist:', watchError);
-        } catch (error) {
-          console.error('Error fetching data from Supabase:', error);
-        }
+        const { data: watch } = await supabase
+          .from('watchlist')
+          .select('*')
+          .eq('user_id', user.id);
+
+        setWatchlist(watch || []);
       }
 
       setLoading(false);
@@ -56,8 +63,18 @@ export default function ProfileScreen() {
   };
 
   const handleMoviePress = (movie: Movie) => {
-    // Al hacer clic en una película, navegamos a la pantalla de detalles
-    navigation.push('Details', { movie: movie }); // Pasa el objeto de la película completo
+    navigation.push('Details', { movie });
+  };
+
+  const handleRemoveFavorite = async (movie_id: number) => {
+    if (!user) return;
+    await supabase
+      .from('favorites')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('movie_id', movie_id);
+
+    setFavorites((prev) => prev.filter((m) => m.movie_id !== movie_id));
   };
 
   if (loading) {
@@ -73,7 +90,7 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.innerContainer}>
         <View style={styles.topBar}>
           <View style={{ flex: 1 }} />
-          <TouchableOpacity onPress={() => console.log('Settings pressed')}>
+          <TouchableOpacity>
             <Icon name="cog-outline" size={24} color="#171d1a" />
           </TouchableOpacity>
         </View>
@@ -85,63 +102,59 @@ export default function ProfileScreen() {
           <Text style={styles.manageBtnText}>Manage lists</Text>
         </TouchableOpacity>
 
-        {/* Mostrar favoritos */}
+        {/* Favorites */}
         {favorites.length > 0 && (
           <>
             <Text style={styles.sectionTitle}>Favorites</Text>
-            <FlatList
-              data={favorites}
-              keyExtractor={(item) => item.id.toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.carousel}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.card}
-                  onPress={() => handleMoviePress(item)} // Llama a `handleMoviePress` pasando el objeto completo
-                >
-                  <Image
-                    source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
-                    style={styles.poster}
-                  />
-                  <Text style={styles.labelLarge} numberOfLines={1}>
-                    {item.title}
-                  </Text>
-                  <Text style={styles.bodySmall}>
-                    {new Date(item.release_date).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carousel}>
+              {favorites.map((item) => (
+                <View key={item.id} style={{ marginRight: 12, position: 'relative' }}>
+                  <TouchableOpacity
+                    style={styles.card}
+                    onPress={() => handleMoviePress(item)}
+                  >
+                    <Image
+                      source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
+                      style={styles.poster}
+                    />
+                    <Text style={styles.labelLarge} numberOfLines={1}>{item.title}</Text>
+                    <Text style={styles.bodySmall}>
+                      {new Date(item.release_date).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => handleRemoveFavorite(item.movie_id)}
+                    style={styles.removeIcon}
+                  >
+                    <Icon name="heart-off" size={18} color="#ba1a1a" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
           </>
         )}
 
-        {/* Mostrar watchlist */}
+        {/* Watchlist */}
         {watchlist.length > 0 && (
           <>
             <Text style={styles.sectionTitle}>Watchlist</Text>
-            <FlatList
-              data={watchlist}
-              keyExtractor={(item) => item.id.toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.carousel}
-              renderItem={({ item }) => (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carousel}>
+              {watchlist.map((item) => (
                 <TouchableOpacity
+                  key={item.id}
                   style={styles.card}
-                  onPress={() => handleMoviePress(item)} // Llama a `handleMoviePress` pasando el objeto completo
+                  onPress={() => handleMoviePress(item)}
                 >
                   <Image
                     source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
                     style={styles.poster}
                   />
-                  <Text style={styles.labelLarge} numberOfLines={1}>
-                    {item.title}
-                  </Text>
+                  <Text style={styles.labelLarge} numberOfLines={1}>{item.title}</Text>
                   <Text style={styles.bodySmall}>
                     {new Date(item.release_date).toLocaleDateString('en-US', {
                       month: 'short',
@@ -150,12 +163,12 @@ export default function ProfileScreen() {
                     })}
                   </Text>
                 </TouchableOpacity>
-              )}
-            />
+              ))}
+            </ScrollView>
           </>
         )}
 
-        {/* Botón de logout */}
+        {/* Logout */}
         <TouchableOpacity style={styles.manageBtn} onPress={handleLogout}>
           <Icon name="logout" size={18} color="#171d1a" />
           <Text style={styles.manageBtnText}>Logout</Text>
@@ -190,6 +203,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f5fbf5',
   },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
   manageBtn: {
     backgroundColor: '#cfe9d9',
     borderRadius: 100,
@@ -213,25 +231,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
   },
-  trendingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  trendingIcon: {
-    marginRight: 10,
-  },
-  trailersRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 24,
-  },
-  trailersIcon: {
-    marginRight: 10,
-  },
   carousel: {
     paddingRight: 8,
-    marginTop: 16,
     marginBottom: 8,
   },
   card: {
@@ -239,7 +240,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e4eae4',
     borderRadius: 16,
     padding: 8,
-    marginRight: 12,
+    marginRight: 8,
     alignItems: 'flex-start',
   },
   poster: {
@@ -256,5 +257,14 @@ const styles = StyleSheet.create({
   bodySmall: {
     fontSize: 14,
     color: '#404943',
+  },
+  removeIcon: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    backgroundColor: 'white',
+    borderRadius: 999,
+    padding: 4,
+    elevation: 2,
   },
 });
