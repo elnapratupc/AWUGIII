@@ -129,7 +129,7 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: { 
     flex: 1,
   },
   scrollContainer: {
