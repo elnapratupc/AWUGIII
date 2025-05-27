@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Keyboard, Text, Dimensions } from 'react-native';
+import { View, StyleSheet, Text, Dimensions, Keyboard, FlatList } from 'react-native';
 import { Searchbar } from 'react-native-paper';
 import HeaderBar from '../components/HeaderBar';
 import FooterNav from '../components/FooterNav';
@@ -17,8 +17,6 @@ import { Movie } from '../lib/tmdb';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { FlatList } from 'react-native';
-
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -75,60 +73,62 @@ export default function SearchScreen() {
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <HeaderBar onLogout={handleLogout} showWelcome={false} />
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Searchbar
-          placeholder="Search movies"
-          value={query}
-          onChangeText={setQuery}
-          onIconPress={Keyboard.dismiss}
-          style={styles.searchbar}
-          icon={() => <Icon name="magnify" size={24} color={theme.colors.outline} />}
-          inputStyle={styles.searchbarInput}
-        />
+      <Searchbar
+        placeholder="Search movies"
+        value={query}
+        onChangeText={setQuery}
+        onIconPress={Keyboard.dismiss}
+        style={styles.searchbar}
+        icon={() => <Icon name="magnify" size={24} color={theme.colors.outline} />}
+        inputStyle={styles.searchbarInput}
+      />
 
-        {query.length > 0 ? (
-          searchResults.length > 0 ? (
-            import { FlatList } from 'react-native';
-
-<FlatList
-  data={searchResults}
-  keyExtractor={(item) => item.id.toString()}
-  numColumns={2}
-  contentContainerStyle={styles.resultsContainer}
-  renderItem={({ item }) => (
-    <MovieCardVertical movie={item} onPress={handleMoviePress} />
-  )}
-/>
-
-          ) : (
-            <View style={styles.noResults}>
-              <Text style={styles.noResultsText}>No results found</Text>
-              <Icon name="emoticon-sad-outline" size={40} color="#999" style={styles.noResultsIcon} />
-            </View>
-          )
+      {query.length > 0 ? (
+        searchResults.length > 0 ? (
+          <FlatList
+            data={searchResults}
+            keyExtractor={(item) => item.id.toString()}
+            numColumns={2}
+            renderItem={({ item }) => (
+              <MovieCardVertical movie={item} onPress={handleMoviePress} />
+            )}
+            contentContainerStyle={styles.resultsContainer}
+            columnWrapperStyle={styles.columnWrapper}
+          />
         ) : (
-          <>
-            <MovieSection
-              title="Trending"
-              icon="fire"
-              movies={trendingMovies}
-              onSelectMovie={handleMoviePress}
-            />
-            <MovieSection
-              title="Popular Today"
-              icon="chart-line"
-              movies={popularMovies}
-              onSelectMovie={handleMoviePress}
-            />
-            <MovieSection
-              title="Free to Watch"
-              icon="piggy-bank"
-              movies={freeToWatch}
-              onSelectMovie={handleMoviePress}
-            />
-          </>
-        )}
-      </ScrollView>
+          <View style={styles.noResults}>
+            <Text style={styles.noResultsText}>No results found</Text>
+            <Icon name="emoticon-sad-outline" size={40} color="#999" style={styles.noResultsIcon} />
+          </View>
+        )
+      ) : (
+        <FlatList
+          ListHeaderComponent={
+            <>
+              <MovieSection
+                title="Trending"
+                icon="fire"
+                movies={trendingMovies}
+                onSelectMovie={handleMoviePress}
+              />
+              <MovieSection
+                title="Popular Today"
+                icon="chart-line"
+                movies={popularMovies}
+                onSelectMovie={handleMoviePress}
+              />
+              <MovieSection
+                title="Free to Watch"
+                icon="piggy-bank"
+                movies={freeToWatch}
+                onSelectMovie={handleMoviePress}
+              />
+            </>
+          }
+          data={[]} // no items perquè només volem el ListHeaderComponent
+          renderItem={null}
+        />
+      )}
 
       <View style={styles.footer}>
         <FooterNav />
@@ -138,11 +138,8 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     flex: 1,
-  },
-  scrollContainer: {
-    paddingBottom: 120,
   },
   searchbar: {
     margin: 16,
@@ -168,7 +165,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   resultsContainer: {
-    paddingBottom: 16,
+    paddingHorizontal: 8,
+    paddingBottom: 120,
+  },
+  columnWrapper: {
+    justifyContent: 'space-between',
   },
   footer: {
     position: 'absolute',

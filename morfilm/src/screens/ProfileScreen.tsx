@@ -14,7 +14,6 @@ import { Movie } from '../lib/tmdb';
 import FooterNav from '../components/FooterNav';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
-import { useIsFocused } from '@react-navigation/native';
 
 
 export default function ProfileScreen() {
