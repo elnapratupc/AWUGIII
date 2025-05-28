@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { useTheme } from 'react-native-paper';
+//import { useTheme } from 'react-native-paper';
+import { MorfilmLightTheme, MorfilmDarkTheme } from '../theme/morfilmTheme';
+import { useColorScheme } from 'react-native';
 import {
   View,
   Text,
@@ -14,7 +16,20 @@ import { supabase } from '../lib/supabaseClient';
 import AuthInput from '../components/AuthInput';
 
 export default function LoginScreen() {
-  const { colors } = useTheme();
+  const colorScheme = useColorScheme() ?? 'light'; 
+
+  const getThemeSurface = (scheme: 'light' | 'dark' | null) => {
+    scheme === 'dark'
+      ? MorfilmDarkTheme.colors.surface
+      : MorfilmLightTheme.colors.surface;
+  };
+  const backgroundColor = getThemeSurface(colorScheme);
+
+  const iconColor =
+  colorScheme === 'dark'
+    ? MorfilmDarkTheme.colors.surfaceVariant
+    : MorfilmLightTheme.colors.surfaceVariant;
+  
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,10 +58,10 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f5fbf5' }}>
+    <View style={{ flex: 1, backgroundColor }}>
       <View style={styles.topBar}>
         <View />
-        <Icon name="cog-outline" size={24} color="#171d1a" />
+        <Icon name="cog-outline" size={24} color={iconColor} />
       </View>
 
       <ScrollView contentContainerStyle={styles.container}>

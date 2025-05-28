@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useTheme } from 'react-native-paper';
+//import { useTheme } from 'react-native-paper';
+import { MorfilmLightTheme, MorfilmDarkTheme } from '../theme/morfilmTheme';
+import { useColorScheme } from 'react-native';
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import {
   Movie,
@@ -22,7 +24,15 @@ export default function HomeScreen() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [trailers, setTrailers] = useState<Trailer[]>([]);
   const [freeToWatch, setFreeToWatch] = useState<Movie[]>([]);
-  const { colors } = useTheme();
+  const colorScheme = useColorScheme() ?? 'light';  
+
+  const getThemeSurface = (scheme: 'light' | 'dark' | null) => {
+  const color = scheme === 'dark'
+    ? MorfilmDarkTheme.colors.surface
+    : MorfilmLightTheme.colors.surface;
+};
+
+  const backgroundColor = getThemeSurface(colorScheme);
 
   useEffect(() => {
     const loadContent = async () => {
@@ -52,10 +62,14 @@ export default function HomeScreen() {
     navigation.navigate('Details', { movie });
   };
 
+  
+
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        
+    <View style={[styles.container, { backgroundColor}]}>
+      <ScrollView
+      style={{ backgroundColor }}
+      contentContainerStyle={styles.scrollContainer}>
+
         {/* Header */}
         <HeaderBar onLogout={handleLogout} showWelcome={true} />
   
