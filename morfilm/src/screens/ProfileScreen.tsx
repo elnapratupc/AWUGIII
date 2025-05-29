@@ -15,12 +15,18 @@ import FooterNav from '../components/FooterNav';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 
+interface MovieList {
+  id: string;
+  name: string;
+}
+
 export default function ProfileScreen() {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const [user, setUser] = useState<any>(null);
   const [favorites, setFavorites] = useState<Movie[]>([]);
   const [watchlist, setWatchlist] = useState<Movie[]>([]);
+  const [customLists, setCustomLists] = useState<MovieList[]>([]);
   const [loading, setLoading] = useState(true);
   const [nickname, setNickname] = useState('');
 
@@ -51,13 +57,20 @@ export default function ProfileScreen() {
           .eq('user_id', user.id);
 
         setWatchlist(watch || []);
+
+        const { data: lists } = await supabase
+          .from('lists')
+          .select('*')
+          .eq('user_id', user.id);
+
+        setCustomLists(lists || []);
       }
 
       setLoading(false);
     };
 
     fetchUserData();
-  }, [isFocused]); // 🔁 Refresca cada cop que tornes a la pantalla
+  }, [isFocused]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -169,6 +182,19 @@ export default function ProfileScreen() {
           </>
         )}
 
+        {/* CUSTOM LISTS */}
+        {customLists.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Your Lists</Text>
+            {customLists.map((list) => (
+              <View key={list.id} style={styles.customListRow}>
+                <Icon name="folder-outline" size={20} color="#206a4e" style={{ marginRight: 6 }} />
+                <Text style={styles.customListText}>{list.name}</Text>
+              </View>
+            ))}
+          </>
+        )}
+
         {/* LOGOUT */}
         <TouchableOpacity style={styles.manageBtn} onPress={handleLogout}>
           <Icon name="logout" size={18} color="#171d1a" />
@@ -267,5 +293,15 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     padding: 4,
     elevation: 2,
+  },
+  customListRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  customListText: {
+    fontSize: 16,
+    color: '#206a4e',
+    fontWeight: '500',
   },
 });

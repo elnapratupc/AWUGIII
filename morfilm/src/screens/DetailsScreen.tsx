@@ -17,6 +17,7 @@ import { useTheme } from 'react-native-paper';
 import { supabase } from '../lib/supabaseClient';
 import MovieSection from '../components/MovieSection';
 import MovieCard from '../components/MovieCard';
+import AddToListModal from '../components/AddToListModal';
 import { Movie } from '../lib/tmdb';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -31,6 +32,7 @@ export default function DetailsScreen() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [userFavorites, setUserFavorites] = useState<Movie[]>([]);
   const [providers, setProviders] = useState<any[]>([]);
+  const [showListModal, setShowListModal] = useState(false);
 
   const userScore = movie?.vote_average ? Math.round(movie.vote_average * 10) : 0;
   const tagline = movie?.tagline || 'Love is a hustle.';
@@ -144,145 +146,153 @@ export default function DetailsScreen() {
   if (!movie) return <Text>Movie not found</Text>;
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-        <ImageBackground
-          source={{ uri: `https://image.tmdb.org/t/p/w780${movie.poster_path}` }}
-          style={styles.heroImage}
-        >
-          <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-            <View style={styles.circleButton}>
-              <Icon name="chevron-down" size={28} color="#0B1B17" />
-            </View>
-          </TouchableOpacity>
+  <View style={styles.container}>
+    <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+      <ImageBackground
+        source={{ uri: `https://image.tmdb.org/t/p/w780${movie.poster_path}` }}
+        style={styles.heroImage}
+      >
+        <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
+          <View style={styles.circleButton}>
+            <Icon name="chevron-down" size={28} color="#0B1B17" />
+          </View>
+        </TouchableOpacity>
 
-          <View style={styles.heroContent}>
-            <Text style={styles.movieTitle}>
-              {movie.title} <Text style={styles.movieYear}>{movieYear}</Text>
-            </Text>
-            <Text style={styles.tagline}>{tagline}</Text>
+        <View style={styles.heroContent}>
+          <Text style={styles.movieTitle}>
+            {movie.title} <Text style={styles.movieYear}>{movieYear}</Text>
+          </Text>
+          <Text style={styles.tagline}>{tagline}</Text>
 
-            <View style={styles.actionButtonRow}>
-              <TouchableOpacity style={styles.iconButton} onPress={toggleFavorite}>
-                <Icon
-                  name={isFavorite ? 'heart' : 'heart-outline'}
-                  size={18}
-                  color={isFavorite ? '#ba1a1a' : '#206A4E'}
-                />
-                <Text style={styles.iconButtonText}>
-                  {isFavorite ? 'In favorites' : 'Add to favorites'}
-                </Text>
-              </TouchableOpacity>
+          <View style={styles.actionButtonRow}>
+            <TouchableOpacity style={styles.iconButton} onPress={toggleFavorite}>
+              <Icon
+                name={isFavorite ? 'heart' : 'heart-outline'}
+                size={18}
+                color={isFavorite ? '#ba1a1a' : '#206A4E'}
+              />
+              <Text style={styles.iconButtonText}>
+                {isFavorite ? 'In favorites' : 'Add to favorites'}
+              </Text>
+            </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.iconButton}
-                onPress={() => Alert.alert('Add to list clicked')}
-              >
-                <Icon name="plus-box" size={18} color="#206A4E" />
-                <Text style={styles.iconButtonText}>Add to list</Text>
-              </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => setShowListModal(true)}
+            >
+              <Icon name="plus-box" size={18} color="#206A4E" />
+              <Text style={styles.iconButtonText}>Add to list</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ImageBackground>
+
+      <View style={styles.contentContainer}>
+        <Text style={styles.overview}>{movie.overview}</Text>
+
+        <View style={styles.statsRow}>
+          <View style={styles.userScoreContainer}>
+            <Svg width={48} height={48}>
+              <Circle
+                cx="24"
+                cy="24"
+                r="20"
+                stroke="#CFE9D9"
+                strokeWidth="4"
+                fill="none"
+                strokeDasharray={2 * Math.PI * 20}
+                strokeDashoffset="0"
+              />
+              <Circle
+                cx="24"
+                cy="24"
+                r="20"
+                stroke="#206A4E"
+                strokeWidth="4"
+                fill="none"
+                strokeDasharray={2 * Math.PI * 20}
+                strokeDashoffset={2 * Math.PI * 20 * (1 - userScore / 100)}
+                strokeLinecap="round"
+              />
+            </Svg>
+            <View style={styles.scoreTextWrapper}>
+              <Text style={styles.scoreValue}>{userScore}%</Text>
+              <Text style={styles.scoreLabel}>User Score</Text>
             </View>
           </View>
-        </ImageBackground>
 
-        <View style={styles.contentContainer}>
-          <Text style={styles.overview}>{movie.overview}</Text>
-
-          <View style={styles.statsRow}>
-            <View style={styles.userScoreContainer}>
-              <Svg width={48} height={48}>
-                <Circle
-                  cx="24"
-                  cy="24"
-                  r="20"
-                  stroke="#CFE9D9"
-                  strokeWidth="4"
-                  fill="none"
-                  strokeDasharray={2 * Math.PI * 20}
-                  strokeDashoffset="0"
-                />
-                <Circle
-                  cx="24"
-                  cy="24"
-                  r="20"
-                  stroke="#206A4E"
-                  strokeWidth="4"
-                  fill="none"
-                  strokeDasharray={2 * Math.PI * 20}
-                  strokeDashoffset={2 * Math.PI * 20 * (1 - userScore / 100)}
-                  strokeLinecap="round"
-                />
-              </Svg>
-              <View style={styles.scoreTextWrapper}>
-                <Text style={styles.scoreValue}>{userScore}%</Text>
-                <Text style={styles.scoreLabel}>User Score</Text>
+          {providers.length > 0 && (
+            <View style={styles.providersContainer}>
+              <View style={styles.whereToWatchRow}>
+                <Icon name="television" size={14} color="#206A4E" style={{ marginRight: 4 }} />
+                <Text style={styles.whereToWatch}>Where to watch</Text>
               </View>
-            </View>
-
-            {providers.length > 0 && (
-              <View style={styles.providersContainer}>
-                <View style={styles.whereToWatchRow}>
-                  <Icon name="television" size={14} color="#206A4E" style={{ marginRight: 4 }} />
-                  <Text style={styles.whereToWatch}>Where to watch</Text>
-                </View>
-                <View style={styles.providerLogos}>
-                  {providers.map((p) => (
-                    <Image
-                      key={p.provider_id}
-                      source={{ uri: `https://image.tmdb.org/t/p/w45${p.logo_path}` }}
-                      style={styles.providerLogo}
-                      resizeMode="contain"
-                    />
-                  ))}
-                </View>
-              </View>
-            )}
-          </View>
-
-          <MovieSection
-            title="Related movies"
-            icon="fire"
-            movies={relatedMovies}
-            onSelectMovie={(m) => navigation.push('Details', { movie: m })}
-          />
-
-          {userFavorites.length > 0 && (
-            <>
-              <Text style={styles.sectionTitle}>Your Favorites</Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 16 }}
-              >
-                {userFavorites.map((fav) => (
-                  <View key={fav.id} style={{ marginRight: 12, position: 'relative' }}>
-                    <MovieCard
-                      movie={fav}
-                      onPress={() => navigation.push('Details', { movie: fav })}
-                    />
-                    <TouchableOpacity
-                      onPress={() => handleRemoveFromFavorites(fav.movie_id)}
-                      style={{
-                        position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        backgroundColor: 'white',
-                        borderRadius: 999,
-                        padding: 4,
-                      }}
-                    >
-                      <Icon name="heart-off" size={18} color="#ba1a1a" />
-                    </TouchableOpacity>
-                  </View>
+              <View style={styles.providerLogos}>
+                {providers.map((p) => (
+                  <Image
+                    key={p.provider_id}
+                    source={{ uri: `https://image.tmdb.org/t/p/w45${p.logo_path}` }}
+                    style={styles.providerLogo}
+                    resizeMode="contain"
+                  />
                 ))}
-              </ScrollView>
-            </>
+              </View>
+            </View>
           )}
         </View>
-      </ScrollView>
-    </View>
-  );
+
+        <MovieSection
+          title="Related movies"
+          icon="fire"
+          movies={relatedMovies}
+          onSelectMovie={(m) => navigation.push('Details', { movie: m })}
+        />
+
+        {userFavorites.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Your Favorites</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 16 }}
+            >
+              {userFavorites.map((fav) => (
+                <View key={fav.id} style={{ marginRight: 12, position: 'relative' }}>
+                  <MovieCard
+                    movie={fav}
+                    onPress={() => navigation.push('Details', { movie: fav })}
+                  />
+                  <TouchableOpacity
+                    onPress={() => handleRemoveFromFavorites(fav.movie_id)}
+                    style={{
+                      position: 'absolute',
+                      top: 8,
+                      right: 8,
+                      backgroundColor: 'white',
+                      borderRadius: 999,
+                      padding: 4,
+                    }}
+                  >
+                    <Icon name="heart-off" size={18} color="#ba1a1a" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
+          </>
+        )}
+      </View>
+
+      {/* MODAL AddToList */}
+      <AddToListModal
+        visible={showListModal}
+        onClose={() => setShowListModal(false)}
+        movie={movie}
+      />
+    </ScrollView>
+  </View>
+);
 }
+
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
