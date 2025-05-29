@@ -3,6 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
+  Image,
   ImageBackground,
   TouchableOpacity,
   ScrollView,
@@ -29,6 +30,7 @@ export default function DetailsScreen() {
   const [relatedMovies, setRelatedMovies] = useState<Movie[]>([]);
   const [isFavorite, setIsFavorite] = useState(false);
   const [userFavorites, setUserFavorites] = useState<Movie[]>([]);
+  const [providers, setProviders] = useState<any[]>([]);
 
   const userScore = movie?.vote_average ? Math.round(movie.vote_average * 10) : 0;
   const tagline = movie?.tagline || 'Love is a hustle.';
@@ -71,49 +73,62 @@ export default function DetailsScreen() {
     fetchFavorites();
   }, [isFavorite]);
 
+  useEffect(() => {
+    const fetchWatchProviders = async () => {
+      const res = await fetch(
+        `https://api.themoviedb.org/3/movie/${movie.id}/watch/providers?api_key=2903fc4c6bd618022e8965d44f45e020`
+      );
+      const data = await res.json();
+      const results = data.results?.ES || data.results?.US;
+
+      if (results?.flatrate) {
+        setProviders(results.flatrate);
+      }
+    };
+
+    if (movie?.id) fetchWatchProviders();
+  }, [movie?.id]);
+
   const toggleFavorite = async () => {
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.log('❌ NO USER:', userError);
-    return;
-  }
-
-  if (isFavorite) {
-    // Remove from favorites
-    const { error } = await supabase
-      .from('favorites')
-      .delete()
-      .eq('user_id', user.id)
-      .eq('movie_id', movie.id);
-
-    if (error) {
-      console.log('❌ DELETE ERROR:', error.message);
-      Alert.alert('Error', error.message);
-    } else {
-      setIsFavorite(false);
-      Alert.alert('Removed from favorites');
+    if (!user) {
+      console.log('❌ NO USER:', userError);
+      return;
     }
-  } else {
-    // Add to favorites
-    const { error } = await supabase.from('favorites').insert({
-      user_id: user.id,
-      movie_id: movie.id,
-      title: movie.title,
-      poster_path: movie.poster_path,
-      release_date: movie.release_date,
-    });
 
-    if (error) {
-      console.log('❌ INSERT ERROR:', error.message);
-      Alert.alert('Error', error.message);
+    if (isFavorite) {
+      const { error } = await supabase
+        .from('favorites')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('movie_id', movie.id);
+
+      if (error) {
+        console.log('❌ DELETE ERROR:', error.message);
+        Alert.alert('Error', error.message);
+      } else {
+        setIsFavorite(false);
+        Alert.alert('Removed from favorites');
+      }
     } else {
-      setIsFavorite(true);
-      Alert.alert('Added to favorites');
-    }
-  }
-};
+      const { error } = await supabase.from('favorites').insert({
+        user_id: user.id,
+        movie_id: movie.id,
+        title: movie.title,
+        poster_path: movie.poster_path,
+        release_date: movie.release_date,
+      });
 
+      if (error) {
+        console.log('❌ INSERT ERROR:', error.message);
+        Alert.alert('Error', error.message);
+      } else {
+        setIsFavorite(true);
+        Alert.alert('Added to favorites');
+      }
+    }
+  };
 
   const handleRemoveFromFavorites = async (favMovieId: number) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -158,6 +173,14 @@ export default function DetailsScreen() {
                   {isFavorite ? 'In favorites' : 'Add to favorites'}
                 </Text>
               </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={() => Alert.alert('Add to list clicked')}
+              >
+                <Icon name="plus-box" size={18} color="#206A4E" />
+                <Text style={styles.iconButtonText}>Add to list</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </ImageBackground>
@@ -195,6 +218,25 @@ export default function DetailsScreen() {
                 <Text style={styles.scoreLabel}>User Score</Text>
               </View>
             </View>
+
+            {providers.length > 0 && (
+              <View style={styles.providersContainer}>
+                <View style={styles.whereToWatchRow}>
+                  <Icon name="television" size={14} color="#206A4E" style={{ marginRight: 4 }} />
+                  <Text style={styles.whereToWatch}>Where to watch</Text>
+                </View>
+                <View style={styles.providerLogos}>
+                  {providers.map((p) => (
+                    <Image
+                      key={p.provider_id}
+                      source={{ uri: `https://image.tmdb.org/t/p/w45${p.logo_path}` }}
+                      style={styles.providerLogo}
+                      resizeMode="contain"
+                    />
+                  ))}
+                </View>
+              </View>
+            )}
           </View>
 
           <MovieSection
@@ -207,7 +249,11 @@ export default function DetailsScreen() {
           {userFavorites.length > 0 && (
             <>
               <Text style={styles.sectionTitle}>Your Favorites</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 16 }}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 16 }}
+              >
                 {userFavorites.map((fav) => (
                   <View key={fav.id} style={{ marginRight: 12, position: 'relative' }}>
                     <MovieCard
@@ -264,11 +310,39 @@ const styles = StyleSheet.create({
   },
   contentContainer: { padding: 16 },
   overview: { fontSize: 14, lineHeight: 20, color: '#333', marginBottom: 16 },
-  statsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
   userScoreContainer: { flexDirection: 'row', alignItems: 'center' },
   scoreTextWrapper: { marginLeft: 12 },
   scoreValue: { fontSize: 18, fontWeight: 'bold', color: '#206A4E' },
   scoreLabel: { fontSize: 12, color: '#333' },
+  providersContainer: {
+    marginLeft: 'auto',
+    alignItems: 'flex-end',
+  },
+  whereToWatchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  whereToWatch: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#206A4E',
+  },
+  providerLogos: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 4,
+  },
+  providerLogo: {
+    width: 30,
+    height: 30,
+    marginHorizontal: 4,
+  },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',

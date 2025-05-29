@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Appbar, Text, useTheme } from 'react-native-paper';
 import { useNavigation, useRoute, NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from '../navigation/AppNavigator'; // Asegúrate que la ruta es correcta
+import { RootStackParamList } from '../navigation/AppNavigator';
 
 interface Props {
   onLogout: () => void;
+  onPressSettings?: () => void; // 👈 Afegit
   showWelcome?: boolean;
 }
 
-export default function HeaderBar({ onLogout, showWelcome = false }: Props) {
+export default function HeaderBar({ onLogout, onPressSettings, showWelcome = false }: Props) {
   const { colors } = useTheme();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute();
@@ -28,7 +29,11 @@ export default function HeaderBar({ onLogout, showWelcome = false }: Props) {
           color={activeTab === 'ProfileScreen' ? colors.primary : colors.onBackground}
         />
         <View style={{ flex: 1 }} />
-        <Appbar.Action icon="cog-outline" onPress={onLogout} />
+        <Appbar.Action
+          icon="cog-outline"
+          onPress={onPressSettings} // 👈 Nou comportament
+          color={colors.onBackground}
+        />
       </Appbar>
 
       {showWelcome && (
