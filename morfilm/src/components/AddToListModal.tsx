@@ -1,253 +1,172 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  FlatList,
-  TextInput,
-  Alert,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import React, { useState, useEffect } from 'react';
+import { Modal, View, Text, TouchableOpacity, TextInput, FlatList, Alert } from 'react-native';
 import { supabase } from '../lib/supabaseClient';
 
-interface Props {
-  visible: boolean;
-  onClose: () => void;
-  movie: {
-    id: number;
-    title: string;
-    poster_path: string;
-    release_date: string;
-  };
-}
-
-interface ListItem {
-  id: string;
-  name: string;
-}
-
-export default function AddToListModal({ visible, onClose, movie }: Props) {
-  const [lists, setLists] = useState<ListItem[]>([]);
-  const [selectedListIds, setSelectedListIds] = useState<Set<string>>(new Set());
+export default function AddToListModal({ visible, onClose, movie }) {
+  const [lists, setLists] = useState([]);
   const [newListName, setNewListName] = useState('');
-  const [showCreateInput, setShowCreateInput] = useState(false);
+  const [selectedLists, setSelectedLists] = useState(new Set());
 
-  const toggleSelection = (id: string) => {
-    setSelectedListIds((prev) => {
-      const copy = new Set(prev);
-      if (copy.has(id)) {
-        copy.delete(id);
-      } else {
-        copy.add(id);
-      }
-      return copy;
-    });
-  };
+  useEffect(() => {
+    if (visible) fetchLists();
+  }, [visible]);
 
+  // Carrega llistes de l'usuari i selecciona les que ja contenen la pel·lícula
   const fetchLists = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: getUserError,
+    } = await supabase.auth.getUser();
     if (!user) return;
-
     const { data, error } = await supabase
       .from('lists')
       .select('*')
       .eq('user_id', user.id);
 
-    if (!error) setLists(data || []);
-    else console.log('❌ FETCH LIST ERROR:', error.message);
+    if (error) {
+      Alert.alert('Error', error.message);
+    } else {
+      setLists(data);
+
+      // Mira a quines llistes ja hi és la peli
+      const { data: movieListData } = await supabase
+        .from('movie_lists')
+        .select('list_id')
+        .eq('movie_id', movie.id)
+        .eq('user_id', user.id);
+      const selected = new Set((movieListData || []).map((ml) => ml.list_id));
+      setSelectedLists(selected);
+    }
   };
 
   const createNewList = async () => {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) {
-      Alert.alert('Error', 'User not found');
-      console.log('❌ USER ERROR:', userError);
+      Alert.alert('Error', 'Usuari no trobat');
       return;
     }
-
     const { data, error } = await supabase
       .from('lists')
-      .insert({
-        user_id: user.id,
-        name: newListName,
-      })
+      .insert({ user_id: user.id, name: newListName })
       .select()
       .single();
-
     if (error) {
-      Alert.alert('Error creating list', error.message);
-      console.log('❌ CREATE LIST ERROR:', error.message);
-    } else {
-      setLists((prev) => [...prev, data]);
-      setSelectedListIds((prev) => new Set([...prev, data.id]));
-      setNewListName('');
-      setShowCreateInput(false);
+      Alert.alert('Error creant la llista', error.message);
+      return;
     }
+    setLists((prev) => [...prev, data]);
+    setNewListName('');
+    setSelectedLists((prev) => new Set(prev).add(data.id));
   };
 
-  const applySelection = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+  // Quan prem una llista, selecciona/desselecciona
+  const toggleList = (listId) => {
+    setSelectedLists((prev) => {
+      const copy = new Set(prev);
+      if (copy.has(listId)) {
+        copy.delete(listId);
+      } else {
+        copy.add(listId);
+      }
+      return copy;
+    });
+  };
 
-    for (const listId of selectedListIds) {
+  // Aplica els canvis (afegeix o treu la peli a les llistes seleccionades)
+  const applyToLists = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // 1. Mira a quines llistes JA hi era la pel·lícula
+    const { data: movieListData } = await supabase
+      .from('movie_lists')
+      .select('list_id')
+      .eq('movie_id', movie.id)
+      .eq('user_id', user.id);
+    const already = new Set((movieListData || []).map((ml) => ml.list_id));
+
+    // 2. Afegir a noves llistes
+    const toAdd = [...selectedLists].filter((id) => !already.has(id));
+    for (let list_id of toAdd) {
       await supabase.from('movie_lists').insert({
         user_id: user.id,
-        list_id: listId,
+        list_id,
         movie_id: movie.id,
         title: movie.title,
         poster_path: movie.poster_path,
         release_date: movie.release_date,
       });
     }
-    Alert.alert('Success', 'Movie added to selected lists.');
+
+    // 3. Esborrar de les llistes desmarcades
+    const toRemove = [...already].filter((id) => !selectedLists.has(id));
+    for (let list_id of toRemove) {
+      await supabase
+        .from('movie_lists')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('list_id', list_id)
+        .eq('movie_id', movie.id);
+    }
+
     onClose();
   };
 
-  useEffect(() => {
-    if (visible) fetchLists();
-  }, [visible]);
-
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={onClose}
-    >
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.title}>Add to lists...</Text>
-          <Text style={styles.subtitle}>Select the lists you want to add this movie to, or create a new one.</Text>
-
+    <Modal visible={visible} animationType="slide" transparent>
+      <View style={{ flex: 1, backgroundColor: '#0009', justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ backgroundColor: '#fff', borderRadius: 20, padding: 20, width: 320 }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 16 }}>Add to lists...</Text>
           <FlatList
             data={lists}
-            keyExtractor={(item) => item.id}
+            keyExtractor={item => item.id}
             renderItem={({ item }) => (
               <TouchableOpacity
-                style={styles.listItem}
-                onPress={() => toggleSelection(item.id)}
-              >
-                <Icon
-                  name={selectedListIds.has(item.id) ? 'checkbox-marked' : 'checkbox-blank-outline'}
-                  size={20}
-                  color="#206A4E"
+                onPress={() => toggleList(item.id)}
+                style={{
+                  paddingVertical: 12,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <View
+                  style={{
+                    height: 20,
+                    width: 20,
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    borderColor: '#206A4E',
+                    backgroundColor: selectedLists.has(item.id) ? '#206A4E' : '#fff',
+                    marginRight: 12,
+                  }}
                 />
-                <Text style={styles.listText}>{item.name}</Text>
+                <Text>{item.name}</Text>
               </TouchableOpacity>
             )}
+            ListEmptyComponent={<Text style={{ color: '#666', marginTop: 10 }}>No lists yet</Text>}
           />
-
-          {showCreateInput ? (
-            <View style={styles.createRow}>
-              <TextInput
-                placeholder="New list"
-                value={newListName}
-                onChangeText={setNewListName}
-                style={styles.input}
-              />
-              <TouchableOpacity onPress={createNewList}>
-                <Icon name="check-circle" size={24} color="#206A4E" />
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity
-              onPress={() => setShowCreateInput(true)}
-              style={styles.createNewButton}
-            >
-              <Icon name="plus-circle-outline" size={20} color="#206A4E" />
-              <Text style={styles.createNewText}>Create new list...</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 14 }}>
+            <TextInput
+              placeholder="Create new list"
+              value={newListName}
+              onChangeText={setNewListName}
+              style={{ flex: 1, borderColor: '#aaa', borderWidth: 1, borderRadius: 8, padding: 8 }}
+            />
+            <TouchableOpacity onPress={createNewList} style={{ marginLeft: 10, backgroundColor: '#206A4E', padding: 10, borderRadius: 8 }}>
+              <Text style={{ color: 'white' }}>+</Text>
             </TouchableOpacity>
-          )}
-
-          <TouchableOpacity style={styles.applyButton} onPress={applySelection}>
-            <Text style={styles.applyButtonText}>✓ Apply selected</Text>
+          </View>
+          <TouchableOpacity onPress={applyToLists} style={{ marginTop: 20, backgroundColor: '#206A4E', padding: 14, borderRadius: 12 }}>
+            <Text style={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Apply selected</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-            <Text style={styles.cancelText}>Cancel</Text>
+          <TouchableOpacity onPress={onClose} style={{ marginTop: 12 }}>
+            <Text style={{ color: '#206A4E', textAlign: 'center' }}>Close</Text>
           </TouchableOpacity>
         </View>
       </View>
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContainer: {
-    width: '90%',
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 20,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 12,
-  },
-  listItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  listText: {
-    marginLeft: 8,
-    fontSize: 16,
-  },
-  createRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 12,
-    gap: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    padding: 6,
-    flex: 1,
-  },
-  createNewButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  createNewText: {
-    marginLeft: 6,
-    color: '#206A4E',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  applyButton: {
-    backgroundColor: '#206A4E',
-    padding: 12,
-    borderRadius: 10,
-    marginTop: 16,
-    alignItems: 'center',
-  },
-  applyButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  cancelButton: {
-    marginTop: 10,
-    alignItems: 'center',
-  },
-  cancelText: {
-    color: '#ba1a1a',
-    fontSize: 14,
-  },
-});
