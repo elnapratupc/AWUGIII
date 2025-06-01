@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabaseClient';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { MorfilmDarkTheme, MorfilmLightTheme } from '../theme/morfilmTheme';
 
 export default function SettingsScreen() {
   const { colors } = useTheme();
@@ -28,7 +29,7 @@ export default function SettingsScreen() {
     await supabase.auth.signOut();
     navigation.navigate('Login');
   };
-
+  
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>

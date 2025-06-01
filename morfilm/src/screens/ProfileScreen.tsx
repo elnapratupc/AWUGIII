@@ -15,7 +15,6 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import ManageListsModal from '../components/ManageListsModal';
 
-
 // Tipus de dades per a una llista personal
 interface MovieList {
   id: string;
