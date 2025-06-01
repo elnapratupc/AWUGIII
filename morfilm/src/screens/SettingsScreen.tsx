@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { useTheme } from '@react-navigation/native';
-import { Menu, Divider } from 'react-native-paper';
+import { Menu } from 'react-native-paper';
 import FooterNav from '../components/FooterNav';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { supabase } from '../lib/supabaseClient';
@@ -13,7 +13,7 @@ export default function SettingsScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [menuVisible, setMenuVisible] = useState(false);
-  const [themeChoice, setThemeChoice] = useState('System default'); // system / light / dark
+  const [themeChoice, setThemeChoice] = useState('System default');
 
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
@@ -21,57 +21,63 @@ export default function SettingsScreen() {
   const handleThemeChange = (theme: string) => {
     setThemeChoice(theme);
     closeMenu();
-    // Aquí podries implementar el canvi real de tema si vols
+    // Aquí podries implementar el canvi real de tema
   };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigation.navigate('Login'); // Torna al login després de logout
+    navigation.navigate('Login');
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={styles.title}>Settings</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={styles.content}>
+        <Text style={styles.title}>Settings</Text>
 
-      <View style={styles.optionRow}>
-        <View style={styles.optionLeft}>
-          <Icon name="theme-light-dark" size={24} color={colors.text} style={styles.optionIcon} />
-          <Text style={styles.optionText}>Appearance</Text>
+        <View style={styles.optionRow}>
+          <View style={styles.optionLeft}>
+            <Icon name="theme-light-dark" size={24} color={colors.text} style={styles.optionIcon} />
+            <Text style={[styles.optionText, { color: colors.text }]}>Appearance</Text>
+          </View>
+
+          <Menu
+            visible={menuVisible}
+            onDismiss={closeMenu}
+            anchor={
+              <TouchableOpacity style={styles.menuButton} onPress={openMenu}>
+                <Text style={styles.menuButtonText}>{themeChoice}</Text>
+                <Icon name="chevron-down" size={20} color={colors.text} />
+              </TouchableOpacity>
+            }
+          >
+            <Menu.Item onPress={() => handleThemeChange('System default')} title="System default" />
+            <Menu.Item onPress={() => handleThemeChange('Light')} title="Light" />
+            <Menu.Item onPress={() => handleThemeChange('Dark')} title="Dark" />
+          </Menu>
         </View>
 
-        <Menu
-          visible={menuVisible}
-          onDismiss={closeMenu}
-          anchor={
-            <TouchableOpacity style={styles.menuButton} onPress={openMenu}>
-              <Text style={styles.menuButtonText}>{themeChoice}</Text>
-              <Icon name="chevron-down" size={20} color={colors.text} />
-            </TouchableOpacity>
-          }
-        >
-          <Menu.Item onPress={() => handleThemeChange('System default')} title="System default" />
-          <Menu.Item onPress={() => handleThemeChange('Light')} title="Light" />
-          <Menu.Item onPress={() => handleThemeChange('Dark')} title="Dark" />
-        </Menu>
+        <TouchableOpacity style={styles.optionRow} onPress={handleLogout}>
+          <View style={styles.optionLeft}>
+            <Icon name="logout" size={24} color={colors.text} style={styles.optionIcon} />
+            <Text style={[styles.optionText, { color: colors.text }]}>Log out</Text>
+          </View>
+        </TouchableOpacity>
       </View>
-
-      <TouchableOpacity style={styles.optionRow} onPress={handleLogout}>
-        <View style={styles.optionLeft}>
-          <Icon name="logout" size={24} color={colors.text} style={styles.optionIcon} />
-          <Text style={styles.optionText}>Log out</Text>
-        </View>
-      </TouchableOpacity>
 
       <View style={styles.footer}>
-        <FooterNav active="" /> 
+        <FooterNav active="" />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'flex-start',
     paddingHorizontal: 24,
     paddingTop: 48,
   },
@@ -98,7 +104,6 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 16,
     fontFamily: 'Lexend Deca',
-    color: '#171d1a',
   },
   menuButton: {
     flexDirection: 'row',
@@ -114,8 +119,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend Deca',
   },
   footer: {
-    position: 'absolute',
-    bottom: 0,
     width: '100%',
   },
 });

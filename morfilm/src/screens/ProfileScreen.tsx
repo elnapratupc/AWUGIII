@@ -101,9 +101,20 @@ export default function ProfileScreen() {
     await supabase.auth.signOut();
   };
 
-  const handleMoviePress = (movie: any) => {
-    navigation.push('Details', { movie });
-  };
+  const handleMoviePress = async (item: any) => {
+  try {
+    const res = await fetch(
+      `https://api.themoviedb.org/3/movie/${item.movie_id}?api_key=2903fc4c6bd618022e8965d44f45e020&language=ca`
+    );
+    const fullMovie = await res.json();
+
+    navigation.push('Details', { movie: fullMovie });
+  } catch (error) {
+    console.error('❌ Error carregant pel·lícula completa:', error);
+    Alert.alert('Error', 'No s’ha pogut carregar la informació de la pel·lícula');
+  }
+};
+
 
   const handleRemoveFavorite = async (movie_id: number) => {
     if (!user) return;

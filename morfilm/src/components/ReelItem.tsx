@@ -1,37 +1,47 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Platform, Dimensions } from 'react-native';
-import { WebView } from 'react-native-webview'; // Usamos WebView para los videos de YouTube Shorts
+import { WebView } from 'react-native-webview';
 
 interface ReelItemProps {
   reel: {
     id: string;
     videoUrl: string;
   };
+  isActive: boolean;
+  onPlay: () => void;
 }
 
-// Obtener la altura de la pantalla
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
-const ReelItem = ({ reel }: ReelItemProps) => {
+const ReelItem = ({ reel, isActive, onPlay }: ReelItemProps) => {
+  const [key, setKey] = useState(Math.random().toString());
+
+  // Reinicia el vídeo quan deixa de ser actiu
+  useEffect(() => {
+    if (!isActive) {
+      setKey(Math.random().toString()); // força remuntatge per aturar vídeo
+    }
+  }, [isActive]);
+
   return (
     <View style={styles.reelContainer}>
-      {/* Usamos WebView para móviles */}
       {Platform.OS !== 'web' ? (
         <WebView
-          source={{ uri: reel.videoUrl }} // URL del video
+          key={key}
+          source={{ uri: reel.videoUrl }}
           style={styles.video}
           javaScriptEnabled
           domStorageEnabled
-          allowsFullscreenVideo={true} // Habilita video en pantalla completa
-          mediaPlaybackRequiresUserAction={false} // Permite que el video se reproduzca automáticamente
-
+          allowsFullscreenVideo
+          mediaPlaybackRequiresUserAction={false}
+          onLoadStart={onPlay}
         />
       ) : (
-        // Usamos un iframe para la web
         <iframe
+          key={key}
           width="100%"
-          height={windowHeight} // Ajusta la altura para que ocupe toda la pantalla
+          height="100%"
           src={reel.videoUrl}
           allow="autoplay; fullscreen"
           title={`Reel ${reel.id}`}
@@ -44,19 +54,16 @@ const ReelItem = ({ reel }: ReelItemProps) => {
 
 const styles = StyleSheet.create({
   reelContainer: {
-    width: windowWidth,
-    height: windowHeight,
-    justifyContent: 'center', // Centra el video verticalmente
-    alignItems: 'center', // Centra el video horizontalmente
-    marginBottom: 10,
-    borderRadius: 20, // Redondea las puntas del contenedor
-    overflow: 'hidden', // Esto asegura que el contenido (video) también tenga bordes redondeados
+    width: windowWidth * 0.95,
+    height: windowHeight * 0.7,
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+    marginBottom: 24,
   },
   video: {
-    width: '56.25%',    
-    height: windowHeight,
-    objectFit: 'cover', // Asegura que el video cubra el contenedor sin deformarse
-    borderRadius: 20, // Redondea las puntas del video
+    width: '100%',
+    height: '100%',
   },
 });
 
