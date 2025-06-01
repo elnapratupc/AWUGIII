@@ -1,7 +1,4 @@
 import React, { useState } from 'react';
-//import { useTheme } from 'react-native-paper';
-import { MorfilmLightTheme, MorfilmDarkTheme } from '../theme/morfilmTheme';
-import { useColorScheme } from 'react-native';
 import {
   View,
   Text,
@@ -14,22 +11,22 @@ import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { supabase } from '../lib/supabaseClient';
 import AuthInput from '../components/AuthInput';
+import { MorfilmLightTheme, MorfilmDarkTheme } from '../theme/morfilmTheme';
+import { useColorScheme } from 'react-native';
 
 export default function LoginScreen() {
-  const colorScheme = useColorScheme() ?? 'light'; 
+  const colorScheme = useColorScheme() ?? 'light';
 
-  const getThemeSurface = (scheme: 'light' | 'dark' | null) => {
-    scheme === 'dark'
+  const backgroundColor =
+    colorScheme === 'dark'
       ? MorfilmDarkTheme.colors.surface
       : MorfilmLightTheme.colors.surface;
-  };
-  const backgroundColor = getThemeSurface(colorScheme);
 
   const iconColor =
-  colorScheme === 'dark'
-    ? MorfilmDarkTheme.colors.surfaceVariant
-    : MorfilmLightTheme.colors.surfaceVariant;
-  
+    colorScheme === 'dark'
+      ? MorfilmDarkTheme.colors.surfaceVariant
+      : MorfilmLightTheme.colors.surfaceVariant;
+
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -60,9 +57,9 @@ export default function LoginScreen() {
   return (
     <View style={{ flex: 1, backgroundColor }}>
       <View style={styles.topBar}>
-  <View />
-</View>
-
+        <View />
+        {/* Pots posar aquí la icona de config si la vols tornar a afegir */}
+      </View>
 
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Log in to proceed.</Text>
