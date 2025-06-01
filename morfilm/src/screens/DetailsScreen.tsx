@@ -239,39 +239,7 @@ export default function DetailsScreen() {
             movies={relatedMovies}
             onSelectMovie={(m) => navigation.push('Details', { movie: m })}
           />
-
-          {userFavorites.length > 0 && (
-            <>
-              <Text style={styles.sectionTitle}>Your Favorites</Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 16 }}
-              >
-                {userFavorites.map((fav) => (
-                  <View key={fav.id} style={{ marginRight: 12, position: 'relative' }}>
-                    <MovieCard
-                      movie={fav}
-                      onPress={() => navigation.push('Details', { movie: fav })}
-                    />
-                    <TouchableOpacity
-                      onPress={() => handleRemoveFromFavorites(fav.movie_id)}
-                      style={{
-                        position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        backgroundColor: 'white',
-                        borderRadius: 999,
-                        padding: 4,
-                      }}
-                    >
-                      <Icon name="heart-off" size={18} color="#ba1a1a" />
-                    </TouchableOpacity>
-                  </View>
-                ))}
-              </ScrollView>
-            </>
-          )}
+        
         </View>
 
         <AddToListModal
