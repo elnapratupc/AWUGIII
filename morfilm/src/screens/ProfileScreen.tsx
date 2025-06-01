@@ -137,7 +137,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.outerContainer}>
-      <ScrollView contentContainerStyle={styles.innerContainer}>
+<ScrollView contentContainerStyle={styles.scrollContent}>
         {/* TOP BAR */}
         <View style={styles.topBar}>
           <View style={{ flex: 1 }} />
@@ -155,40 +155,43 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
         {/* FAVORITES */}
-        {favorites.length > 0 && (
-          <>
-            <Text style={styles.sectionTitle}>Favorites</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carousel}>
-              {favorites.map((item) => (
-                <View key={item.id} style={{ marginRight: 12, position: 'relative' }}>
-                  <TouchableOpacity
-                    style={styles.card}
-                    onPress={() => handleMoviePress(item)}
-                  >
-                    <Image
-                      source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
-                      style={styles.poster}
-                    />
-                    <Text style={styles.labelLarge} numberOfLines={1}>{item.title}</Text>
-                    <Text style={styles.bodySmall}>
-                      {new Date(item.release_date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => handleRemoveFavorite(item.movie_id)}
-                    style={styles.removeIcon}
-                  >
-                    <Icon name="heart" size={18} color="#ba1a1a" />
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </ScrollView>
-          </>
-        )}
+<Text style={styles.sectionTitle}>Favorites</Text>
+{favorites.length === 0 ? (
+  <View style={styles.noResultsContainer}>
+    <Text style={styles.noResultsText}>You haven't added any favorites yet.</Text>
+<Icon name="emoticon-sad-outline" size={40} color="#888" style={styles.noResultsIcon} />
+  </View>
+) : (
+  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carousel}>
+    {favorites.map((item) => (
+      <View key={item.id} style={{ marginRight: 12, position: 'relative' }}>
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => handleMoviePress(item)}
+        >
+          <Image
+            source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
+            style={styles.poster}
+          />
+          <Text style={styles.labelLarge} numberOfLines={1}>{item.title}</Text>
+          <Text style={styles.bodySmall}>
+            {new Date(item.release_date).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => handleRemoveFavorite(item.movie_id)}
+          style={styles.removeIcon}
+        >
+          <Icon name="heart" size={18} color="#ba1a1a" />
+        </TouchableOpacity>
+      </View>
+    ))}
+  </ScrollView>
+)}
 
         {/* WATCHLIST */}
         {watchlist.length > 0 && (
@@ -219,46 +222,50 @@ export default function ProfileScreen() {
           </>
         )}
 
-        {/* CUSTOM LISTS amb pelis */}
-        {customLists.length > 0 && (
-          <>
-            <Text style={styles.sectionTitle}>Your Lists</Text>
-            {customLists.map((list) => (
-              <View key={list.id} style={{ marginBottom: 28 }}>
-                <View style={styles.customListRow}>
-                  <Icon name="folder-outline" size={20} color="#206a4e" style={{ marginRight: 6 }} />
-                  <Text style={styles.customListText}>{list.name}</Text>
-                </View>
-                {list.movies.length === 0 ? (
-                  <Text style={{ color: '#888', marginLeft: 28 }}>No movies</Text>
-                ) : (
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carousel}>
-                    {list.movies.map((item) => (
-                      <TouchableOpacity
-                        key={item.movie_id}
-                        style={styles.card}
-                        onPress={() => handleMoviePress(item)}
-                      >
-                        <Image
-                          source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
-                          style={styles.poster}
-                        />
-                        <Text style={styles.labelLarge} numberOfLines={1}>{item.title}</Text>
-                        <Text style={styles.bodySmall}>
-                          {item.release_date && new Date(item.release_date).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                          })}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-                )}
-              </View>
-            ))}
-          </>
-        )}
+       {/* CUSTOM LISTS */}
+<Text style={styles.sectionTitle}>Your Lists</Text>
+{customLists.length === 0 ? (
+  <View style={styles.noResultsContainer}>
+    <Text style={styles.noResultsText}>You haven’t created any custom lists yet.</Text>
+<Icon name="emoticon-sad-outline" size={40} color="#888" style={styles.noResultsIcon} />
+  </View>
+) : (
+  customLists.map((list) => (
+    <View key={list.id} style={{ marginBottom: 28 }}>
+      <View style={styles.customListRow}>
+        <Icon name="folder-outline" size={20} color="#206a4e" style={{ marginRight: 6 }} />
+        <Text style={styles.customListText}>{list.name}</Text>
+      </View>
+      {list.movies.length === 0 ? (
+        <Text style={styles.emptyMessage}>No movies in this list.</Text>
+      ) : (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carousel}>
+          {list.movies.map((item) => (
+            <TouchableOpacity
+              key={item.movie_id}
+              style={styles.card}
+              onPress={() => handleMoviePress(item)}
+            >
+              <Image
+                source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
+                style={styles.poster}
+              />
+              <Text style={styles.labelLarge} numberOfLines={1}>{item.title}</Text>
+              <Text style={styles.bodySmall}>
+                {item.release_date && new Date(item.release_date).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
+    </View>
+  ))
+)}
+
 
         {/* LOGOUT */}
         <TouchableOpacity style={styles.manageBtn} onPress={handleLogout}>
@@ -286,12 +293,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#eaeaea',
   },
-  innerContainer: {
-    backgroundColor: '#f5fbf5',
-    paddingHorizontal: 24,
-    paddingTop: 25,
-    paddingBottom: 48,
-  },
+ 
   topBar: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
@@ -380,4 +382,28 @@ const styles = StyleSheet.create({
     color: '#206a4e',
     fontWeight: '500',
   },
+  noResultsContainer: {
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: 24,
+},
+noResultsText: {
+  fontSize: 16,
+  color: '#888',
+  marginBottom: 6,
+},
+noResultsIcon: {
+  fontSize: 26,
+  color: '#888',
+},
+scrollContent: {
+  flexGrow: 1,
+  justifyContent: 'space-between',
+  backgroundColor: '#f5fbf5',
+  paddingHorizontal: 24,
+  paddingTop: 25,
+  paddingBottom: 48,
+},
+
+
 });
