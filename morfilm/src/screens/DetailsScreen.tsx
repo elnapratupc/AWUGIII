@@ -217,10 +217,8 @@ export default function DetailsScreen() {
 
             {providers.length > 0 && (
               <View style={styles.providersContainer}>
-                <View style={styles.whereToWatchRow}>
-                  <Icon name="television" size={14} color="#206A4E" style={{ marginRight: 4 }} />
-                  <Text style={styles.whereToWatch}>Where to watch</Text>
-                </View>
+                <Text style={styles.whereToWatch}>Where to watch</Text>
+
                 <View style={styles.providerLogos}>
                   {providers.map((p) => (
                     <Image
@@ -323,28 +321,36 @@ const styles = StyleSheet.create({
   scoreValue: { fontSize: 18, fontWeight: 'bold', color: '#206A4E' },
   scoreLabel: { fontSize: 12, color: '#333' },
   providersContainer: {
-    marginLeft: 'auto',
-    alignItems: 'flex-end',
-  },
+  alignItems: 'flex-start', 
+  marginTop: 8,
+},
+
   whereToWatchRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   whereToWatch: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#206A4E',
-  },
-  providerLogos: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 4,
-  },
-  providerLogo: {
-    width: 30,
-    height: 30,
-    marginHorizontal: 4,
-  },
+  fontSize: 14,
+  fontWeight: '600',
+  color: '#171d1a', 
+},
+
+providerLogos: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginTop: 8,
+  gap: 8, 
+},
+
+providerLogo: {
+  width: 30,
+  height: 30,
+  borderRadius: 8,
+  backgroundColor: '#000',
+},
+
+
+
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
