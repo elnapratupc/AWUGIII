@@ -7,7 +7,6 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../lib/supabaseClient';
 import AuthInput from '../components/AuthInput';
@@ -34,6 +33,11 @@ export default function SignupScreen() {
       return;
     }
 
+    if (password.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+      return;
+    }
+
     if (password !== confirmPassword) {
       setPasswordError('Passwords do not match');
       return;
@@ -57,10 +61,10 @@ export default function SignupScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f5fbf5' }}>
-      {/* Header */}
+      {/* Header sense icona */}
       <View style={styles.topBar}>
         <View />
-        <Icon name="cog-outline" size={24} color="#171d1a" />
+        <View /> {/* Placeholder per mantenir estructura */}
       </View>
 
       <ScrollView contentContainerStyle={styles.container}>
@@ -105,8 +109,6 @@ export default function SignupScreen() {
           <Text style={styles.buttonSecondaryText}>Back to Log in</Text>
         </TouchableOpacity>
       </ScrollView>
-
-      {/* Removed FooterNav here */}
     </View>
   );
 }

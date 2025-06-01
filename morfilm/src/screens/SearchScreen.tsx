@@ -78,7 +78,11 @@ export default function SearchScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <HeaderBar onLogout={handleLogout} showWelcome={false} />
+<HeaderBar
+  onLogout={handleLogout}
+  showWelcome={false}
+  onPressSettings={() => navigation.navigate('SettingsScreen')}
+/>
 
       <View style={styles.scrollContainer}>
         <Searchbar

@@ -60,9 +60,9 @@ export default function LoginScreen() {
   return (
     <View style={{ flex: 1, backgroundColor }}>
       <View style={styles.topBar}>
-        <View />
-        <Icon name="cog-outline" size={24} color={iconColor} />
-      </View>
+  <View />
+</View>
+
 
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Log in to proceed.</Text>
