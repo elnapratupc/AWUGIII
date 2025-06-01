@@ -93,9 +93,16 @@ export default function ProfileScreen() {
   }, []);
 
   // Refresca dades en obrir perfil o després de gestionar llistes
-  useEffect(() => {
-    fetchUserData();
-  }, [isFocused, fetchUserData]);
+ useEffect(() => {
+  const loadData = async () => {
+    setLoading(true);
+    await fetchUserData();
+    setLoading(false);
+  };
+
+  loadData();
+}, [isFocused, fetchUserData]);
+
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
