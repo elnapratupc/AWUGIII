@@ -49,31 +49,29 @@ export default function DetailsScreen() {
     if (movie?.id) fetchRelatedMovies();
   }, [movie?.id]);
 
-  useEffect(() => {
-    const checkFavorite = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { data } = await supabase
-        .from('favorites')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('movie_id', movie.id)
-        .maybeSingle();
-      if (data) setIsFavorite(true);
-    };
-    if (movie?.id) checkFavorite();
-  }, [movie?.id]);
+useEffect(() => {
+  const refreshFavorites = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data: allFavs, error } = await supabase
+      .from('favorites')
+      .select('*')
+      .eq('user_id', user.id);
 
-  useEffect(() => {
-    const fetchFavorites = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { data, error } = await supabase
-        .from('favorites')
-        .select('*')
-        .eq('user_id', user.id);
-      if (!error) setUserFavorites(data || []);
-    };
-    fetchFavorites();
-  }, [isFavorite]);
+    if (error) {
+      console.error("❌ Error carregant favorits:", error.message);
+      return;
+    }
+
+    setUserFavorites(allFavs || []);
+
+    const found = allFavs?.some((f) => f.movie_id === movie.id);
+    setIsFavorite(found || false);
+  };
+
+  if (movie?.id) refreshFavorites();
+}, [movie?.id]);
+
+
 
   useEffect(() => {
     const fetchWatchProviders = async () => {
@@ -91,46 +89,59 @@ export default function DetailsScreen() {
     if (movie?.id) fetchWatchProviders();
   }, [movie?.id]);
 
-  const toggleFavorite = async () => {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+ const toggleFavorite = async () => {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (!user) {
+    console.log('❌ NO USER:', userError);
+    return;
+  }
 
-    if (!user) {
-      console.log('❌ NO USER:', userError);
-      return;
-    }
+  const refreshFavorites = async () => {
+    const { data: allFavs, error } = await supabase
+      .from('favorites')
+      .select('*')
+      .eq('user_id', user.id);
 
-    if (isFavorite) {
-      const { error } = await supabase
-        .from('favorites')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('movie_id', movie.id);
-
-      if (error) {
-        console.log('❌ DELETE ERROR:', error.message);
-        Alert.alert('Error', error.message);
-      } else {
-        setIsFavorite(false);
-        Alert.alert('Removed from favorites');
-      }
-    } else {
-      const { error } = await supabase.from('favorites').insert({
-        user_id: user.id,
-        movie_id: movie.id,
-        title: movie.title,
-        poster_path: movie.poster_path,
-        release_date: movie.release_date,
-      });
-
-      if (error) {
-        console.log('❌ INSERT ERROR:', error.message);
-        Alert.alert('Error', error.message);
-      } else {
-        setIsFavorite(true);
-        Alert.alert('Added to favorites');
-      }
+    if (!error) {
+      setUserFavorites(allFavs || []);
+      const found = allFavs?.some((f) => f.movie_id === movie.id);
+      setIsFavorite(found || false);
     }
   };
+
+  if (isFavorite) {
+    const { error } = await supabase
+      .from('favorites')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('movie_id', movie.id);
+
+    if (error) {
+      console.log('❌ DELETE ERROR:', error.message);
+      Alert.alert('Error', error.message);
+    } else {
+      await refreshFavorites();
+      Alert.alert('Removed from favorites');
+    }
+  } else {
+    const { error } = await supabase.from('favorites').insert({
+      user_id: user.id,
+      movie_id: movie.id,
+      title: movie.title,
+      poster_path: movie.poster_path,
+      release_date: movie.release_date,
+    });
+
+    if (error) {
+      console.log('❌ INSERT ERROR:', error.message);
+      Alert.alert('Error', error.message);
+    } else {
+      await refreshFavorites();
+      Alert.alert('Added to favorites');
+    }
+  }
+};
+
 
   const handleRemoveFromFavorites = async (favMovieId: number) => {
     const { data: { user } } = await supabase.auth.getUser();
