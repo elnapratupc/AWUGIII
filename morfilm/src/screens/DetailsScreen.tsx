@@ -156,7 +156,6 @@ export default function DetailsScreen() {
             <Text style={styles.movieTitle}>
               {movie.title} <Text style={styles.movieYear}>{movieYear}</Text>
             </Text>
-            <Text style={styles.tagline}>{tagline}</Text>
 
             <View style={styles.actionButtonRow}>
               <TouchableOpacity style={styles.iconButton} onPress={toggleFavorite}>

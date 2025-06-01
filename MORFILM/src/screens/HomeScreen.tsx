@@ -21,6 +21,7 @@ import MovieSection from '../components/MovieSection';
 import TrailerSection from '../components/TrailerSection';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { MorfilmDarkTheme, MorfilmLightTheme } from '../theme/morfilmTheme';
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -28,11 +29,13 @@ export default function HomeScreen() {
   const [trailers, setTrailers] = useState<Trailer[]>([]);
   const [freeToWatch, setFreeToWatch] = useState<Movie[]>([]);
   const colorScheme = useColorScheme() ?? 'light';
+  const morfilmTheme = { dark: MorfilmDarkTheme, light: MorfilmLightTheme };
+
 
   const getThemeSurface = (scheme: 'light' | 'dark' | null) => {
     return scheme === 'dark'
-      ? '#121212'
-      : '#FFFFFF';
+      ? morfilmTheme.dark.colors.surface
+      : morfilmTheme.light.colors.surface;
   };
 
   const backgroundColor = getThemeSurface(colorScheme);
