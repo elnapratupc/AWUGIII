@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Appbar, Text, useTheme } from 'react-native-paper';
+import { StyleSheet, View, Text } from 'react-native';
+import { Appbar, useTheme } from 'react-native-paper';
 import { useNavigation, useRoute, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
 interface Props {
   onLogout: () => void;
-  onPressSettings?: () => void; // 👈 Afegit
+  onPressSettings?: () => void;
   showWelcome?: boolean;
 }
 
@@ -31,13 +31,13 @@ export default function HeaderBar({ onLogout, onPressSettings, showWelcome = fal
         <View style={{ flex: 1 }} />
         <Appbar.Action
           icon="cog-outline"
-          onPress={onPressSettings} // 👈 Nou comportament
+          onPress={onPressSettings}
           color={colors.onBackground}
         />
       </Appbar>
 
       {showWelcome && (
-        <Text variant="headlineSmall" style={[styles.welcome, { color: colors.onBackground }]}>
+        <Text style={[styles.welcome, { color: colors.onBackground }]}>
           Welcome.
         </Text>
       )}
@@ -58,5 +58,8 @@ const styles = StyleSheet.create({
   welcome: {
     marginLeft: 8,
     marginTop: 8,
+    fontSize: 24,
+    // fontFamily no cal: 'Lexend Deca' ja està aplicat globalment
+    // NO posem fontWeight: 'bold'
   },
 });

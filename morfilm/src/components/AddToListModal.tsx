@@ -153,13 +153,13 @@ export default function AddToListModal({ visible, onClose, movie }) {
               placeholder="Create new list"
               value={newListName}
               onChangeText={setNewListName}
-              style={{ flex: 1, borderColor: '#aaa', borderWidth: 1, borderRadius: 8, padding: 8 }}
+              style={{ flex: 1, borderColor: '#aaa', borderWidth: 1, borderRadius: 8, padding: 8, }}
             />
-            <TouchableOpacity onPress={createNewList} style={{ marginLeft: 10, backgroundColor: '#206A4E', padding: 10, borderRadius: 8 }}>
+            <TouchableOpacity onPress={createNewList} style={{ marginLeft: 10, backgroundColor: '#206A4E', padding: 10, borderRadius: 20 }}>
               <Text style={{ color: 'white' }}>+</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={applyToLists} style={{ marginTop: 20, backgroundColor: '#206A4E', padding: 14, borderRadius: 12 }}>
+          <TouchableOpacity onPress={applyToLists} style={{ marginTop: 20, backgroundColor: '#206A4E', padding: 14, borderRadius: 20}}>
             <Text style={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Apply selected</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={onClose} style={{ marginTop: 12 }}>
