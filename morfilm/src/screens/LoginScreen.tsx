@@ -1,3 +1,4 @@
+// LoginScreen.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -16,7 +17,6 @@ import { useColorScheme } from 'react-native';
 
 export default function LoginScreen() {
   const colorScheme = useColorScheme() ?? 'light';
-
   const backgroundColor =
     colorScheme === 'dark'
       ? MorfilmDarkTheme.colors.surface
@@ -30,7 +30,6 @@ export default function LoginScreen() {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
@@ -51,6 +50,12 @@ export default function LoginScreen() {
       } else {
         Alert.alert('Login error', error.message);
       }
+    } else {
+      // ✅ Navegar directament a la pantalla principal després de login
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }], // Assegura't que "Home" és el nom real a la teva AppNavigator
+      });
     }
   };
 
@@ -58,7 +63,6 @@ export default function LoginScreen() {
     <View style={{ flex: 1, backgroundColor }}>
       <View style={styles.topBar}>
         <View />
-        {/* Pots posar aquí la icona de config si la vols tornar a afegir */}
       </View>
 
       <ScrollView contentContainerStyle={styles.container}>
