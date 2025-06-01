@@ -52,8 +52,6 @@ export default function SettingsScreen() {
             }
           >
             <Menu.Item onPress={() => handleThemeChange('System default')} title="System default" />
-            <Menu.Item onPress={() => handleThemeChange('Light')} title="Light" />
-            <Menu.Item onPress={() => handleThemeChange('Dark')} title="Dark" />
           </Menu>
         </View>
 
